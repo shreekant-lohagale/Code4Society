@@ -70,7 +70,7 @@ const Hero = () => {
                     </h1>
 
                     <p className="hero-text text-lg sm:text-xl text-[var(--color-brand-text-secondary)] mb-8 max-w-lg leading-relaxed">
-                        Predict your exact Carbon Emission with our physics-informed Gradient Boosting model. We analyze 18 critical lifestyle factors—from vehicle distance and air travel to heating and consumption patterns.
+                        Predict your exact Carbon Emission with our <strong className="text-white">Dual-Model Architecture.</strong> A regression pipeline analyzes 18 critical lifestyle factors, while our <strong className="text-violet-400">YOLO Computer Vision</strong> model instantly detects waste material weight to aggregate your total environmental impact.
                     </p>
 
                     <div className="flex flex-wrap gap-4 w-full sm:w-auto relative z-50 pointer-events-auto">

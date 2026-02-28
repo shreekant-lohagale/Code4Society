@@ -13,13 +13,13 @@ const steps = [
     },
     {
         icon: <ImageIcon className="w-6 h-6 text-white" />,
-        title: "2. Multimodal Scan",
-        description: "Upload images of waste, receipts, or appliances for context extraction."
+        title: "2. YOLO Vision Scan",
+        description: "Upload images of your daily waste. The YOLO AI detects materials and weights instantly."
     },
     {
         icon: <Cpu className="w-6 h-6 text-white" />,
-        title: "3. ML Prediction",
-        description: "Gradient Boosting model computes high-accuracy CO₂ equivalent metrics."
+        title: "3. Dual-Model Synthesis",
+        description: "Lifestyle regression aggregates with visual waste data for hyper-accurate CO₂ metrics."
     },
     {
         icon: <Lightbulb className="w-6 h-6 text-white" />,

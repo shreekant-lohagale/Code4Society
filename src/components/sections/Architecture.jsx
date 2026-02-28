@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Database, Server, Laptop, Cpu } from 'lucide-react';
+import { Database, Server, Laptop, Cpu, ScanSearch } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -101,16 +101,28 @@ const Architecture = () => {
                     </div>
 
                     {/* Data & ML Layer */}
-                    <div className="w-full max-w-md flex justify-between gap-4 z-10">
-                        <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-amber-400/40 hover:border-amber-400 py-4 rounded-xl shadow-lg flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center">
+                    <div className="w-full max-w-2xl flex flex-col md:flex-row justify-between gap-4 z-10">
+                        {/* Time-Series DB */}
+                        <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-amber-400/40 hover:border-amber-400 py-4 px-2 rounded-xl shadow-lg flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center">
                             <div className="text-amber-400 group-hover:scale-110 transition-transform"><Database className="w-6 h-6" /></div>
-                            <span className="text-sm font-bold text-white">Time-Series DB</span>
+                            <span className="text-xs font-bold text-white uppercase tracking-wider">User DB</span>
                         </div>
 
-                        <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-purple-400/40 hover:border-purple-400 py-4 rounded-xl shadow-[0_0_20px_rgba(192,132,252,0.15)] flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center relative overflow-hidden">
-                            <div className="absolute inset-0 bg-purple-400/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="text-purple-400 group-hover:scale-110 transition-transform relative z-10"><Cpu className="w-6 h-6" /></div>
-                            <span className="text-sm font-bold text-white relative z-10">Gradient Boosting ML</span>
+                        {/* Dual ML Pipeline */}
+                        <div className="flex-2 flex gap-4 w-full">
+                            {/* Model 1: Regression */}
+                            <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-purple-400/40 hover:border-purple-400 py-4 px-2 rounded-xl shadow-[0_0_20px_rgba(192,132,252,0.15)] flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center relative overflow-hidden">
+                                <div className="absolute inset-0 bg-purple-400/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="text-purple-400 group-hover:scale-110 transition-transform relative z-10"><Cpu className="w-6 h-6" /></div>
+                                <span className="text-xs font-bold text-white relative z-10 uppercase tracking-wider">Lifestyle Regression</span>
+                            </div>
+
+                            {/* Model 2: YOLO Vision */}
+                            <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-emerald-400/40 hover:border-emerald-400 py-4 px-2 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.15)] flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center relative overflow-hidden">
+                                <div className="absolute inset-0 bg-emerald-400/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="text-emerald-400 group-hover:scale-110 transition-transform relative z-10"><ScanSearch className="w-6 h-6" /></div>
+                                <span className="text-xs font-bold text-white relative z-10 uppercase tracking-wider">YOLO Image Vision</span>
+                            </div>
                         </div>
                     </div>
 
