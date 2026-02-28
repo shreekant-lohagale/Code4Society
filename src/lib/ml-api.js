@@ -1,18 +1,10 @@
-// utils/ml-api.js
-
 /**
+ * Pipeline 1: Regression Model (Lifestyle Data)
  * Mocks the Stacking Ensemble R2=0.9885 model.
- * In production, replace this with an actual fetch call to a FastAPI/Flask server hosting the .joblib file.
- * 
- * Example payload to FastAPI:
- * {
- *   "Body Type": "normal",
- *   "Sex": "female",
- *   ...
- * }
+ * Expected Endpoint: POST /predict_lifestyle
  */
-export const predictCarbonEmission = async (formData) => {
-    console.log("Sending payload to ML model:", formData);
+export const predictLifestyle = async (formData) => {
+    console.log("Pipeline 1 -> Sending payload to Lifestyle ML:", formData);
 
     // Simulate network delay to Python Backend
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -77,5 +69,38 @@ export const predictCarbonEmission = async (formData) => {
     }
 
     // Floor the emission at 0 for safety
-    return Math.max(0, Math.round(emission));
+    return {
+        lifestyle_carbon: Math.max(0, Math.round(emission))
+    };
+};
+
+/**
+ * Pipeline 2: Computer Vision Model (Waste Items)
+ * Mocks the YOLO image detection and weight prediction.
+ * Expected Endpoint: POST /predict (FormData with image file)
+ */
+export const predictImage = async (imageFile) => {
+    console.log("Pipeline 2 -> Sending file to YOLO ML:", imageFile?.name);
+
+    // Simulate network delay to Python Vision Backend
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    // If no file was provided, return empty
+    if (!imageFile) return [];
+
+    // Mock response simulating `predictor.py` logic
+    return [
+        {
+            material: "plastic",
+            confidence: 0.97,
+            weight_g: 82.9,
+            carbon_kg: 0.207
+        },
+        {
+            material: "cardboard",
+            confidence: 0.89,
+            weight_g: 150.5,
+            carbon_kg: 0.135
+        }
+    ];
 };

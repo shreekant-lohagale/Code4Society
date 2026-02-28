@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import Wizard from '../components/calculator/Wizard';
 import Scorecard from '../components/calculator/Scorecard';
-import { predictCarbonEmission } from '../lib/ml-api';
+import { predictLifestyle, predictImage } from '../lib/ml-api';
 
 const AppDashboard = () => {
-    const [prediction, setPrediction] = useState(null);
+    const [lifestyleCarbon, setLifestyleCarbon] = useState(null);
+    const [imageRes, setImageRes] = useState(null);
 
     const [isCalculating, setIsCalculating] = useState(false);
 
@@ -13,11 +14,18 @@ const AppDashboard = () => {
         console.log("Collected Data:", data);
 
         try {
-            const result = await predictCarbonEmission(data);
-            setPrediction(result);
+            // Run both backend pipelines in parallel
+            const [lifestyleResult, imageResult] = await Promise.all([
+                predictLifestyle(data),
+                predictImage(data.WasteImage)
+            ]);
+
+            setLifestyleCarbon(lifestyleResult.lifestyle_carbon);
+            setImageRes(imageResult);
         } catch (error) {
             console.error("Prediction failed:", error);
-            setPrediction(2435); // fallback
+            setLifestyleCarbon(2435); // fallback
+            setImageRes([]);
         } finally {
             setIsCalculating(false);
         }
@@ -37,18 +45,19 @@ const AppDashboard = () => {
                     </p>
                 </div>
 
-                {!prediction ? (
+                {!lifestyleCarbon ? (
                     <div className="relative">
                         {isCalculating && (
                             <div className="absolute inset-0 z-50 bg-[var(--color-brand-surface)]/80 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center">
                                 <div className="w-16 h-16 border-4 border-[var(--color-brand-accent)] border-t-transparent rounded-full animate-spin mb-4" />
-                                <p className="text-white font-medium animate-pulse">Running ML Model...</p>
+                                <p className="text-white font-medium animate-pulse mb-2">Running Dual-Model AI Pipeline...</p>
+                                <p className="text-sm text-[var(--color-brand-accent)]">Processing Lifestyle Registry & YOLO Vision Weights</p>
                             </div>
                         )}
                         <Wizard onComplete={handleComplete} />
                     </div>
                 ) : (
-                    <Scorecard score={prediction} />
+                    <Scorecard lifestyleCarbon={lifestyleCarbon} imageRes={imageRes} />
                 )}
             </div>
 

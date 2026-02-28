@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, CheckCircle2, Star } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Star, UploadCloud, ImageIcon, X } from 'lucide-react';
 
 const Wizard = ({ onComplete }) => {
     const [step, setStep] = useState(1);
-    const totalSteps = 4;
+    const totalSteps = 5;
 
     const [formData, setFormData] = useState({
         "Body Type": "Normal",
@@ -24,7 +24,8 @@ const Wizard = ({ onComplete }) => {
         "Waste Bag Size": "Medium",
         "Waste Bag Weekly Count": 2,
         "Recycling": [],
-        "Cooking_With": []
+        "Cooking_With": [],
+        "WasteImage": null
     });
 
     const handleChange = (e) => {
@@ -44,6 +45,17 @@ const Wizard = ({ onComplete }) => {
                 return { ...prev, [name]: [...arr, val] };
             }
         });
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFormData(prev => ({ ...prev, "WasteImage": file }));
+        }
+    };
+
+    const removeFile = () => {
+        setFormData(prev => ({ ...prev, "WasteImage": null }));
     };
 
     const nextStep = () => {
@@ -78,6 +90,7 @@ const Wizard = ({ onComplete }) => {
                     {step === 2 && "Transport & Travel"}
                     {step === 3 && "Consumption"}
                     {step === 4 && "Energy & Waste"}
+                    {step === 5 && "Waste Vision AI"}
                 </h2>
                 <span className="text-[var(--color-brand-accent)] font-medium">Step {step} of {totalSteps}</span>
             </div>
@@ -258,6 +271,49 @@ const Wizard = ({ onComplete }) => {
                                     </div>
                                 </div>
 
+                            </div>
+                        )}
+
+                        {/* --- STEP 5: COMPUTER VISION AI --- */}
+                        {step === 5 && (
+                            <div className="flex flex-col items-center justify-center space-y-6 py-4">
+                                <div className="text-center max-w-md">
+                                    <h3 className="text-xl font-bold text-white mb-2">Upload Waste Image</h3>
+                                    <p className="text-[var(--color-brand-text-secondary)] text-sm mb-6">Take a picture of today's waste bin. Our YOLO Vision Model will detect materials (plastic, cardboard) and calculate exact carbon impact.</p>
+                                </div>
+
+                                <div className="w-full max-w-lg">
+                                    {!formData["WasteImage"] ? (
+                                        <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-[var(--color-brand-accent)]/40 rounded-2xl cursor-pointer bg-[var(--color-brand-bg)] hover:bg-[var(--color-brand-accent)]/5 hover:border-[var(--color-brand-accent)] transition-all group">
+                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                <UploadCloud className="w-12 h-12 text-[var(--color-brand-accent)]/60 group-hover:text-[var(--color-brand-accent)] mb-4 transition-colors" />
+                                                <p className="mb-2 text-sm text-gray-300"><span className="font-semibold text-white">Click to upload</span> or drag and drop</p>
+                                                <p className="text-xs text-gray-500">PNG, JPG or JPEG (MAX. 5MB)</p>
+                                            </div>
+                                            <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
+                                        </label>
+                                    ) : (
+                                        <div className="relative flex flex-col items-center justify-center w-full h-64 border border-white/10 rounded-2xl bg-[#0b1020] overflow-hidden group">
+                                            <img
+                                                src={URL.createObjectURL(formData["WasteImage"])}
+                                                alt="Waste preview"
+                                                className="absolute inset-0 w-full h-full object-cover opacity-60"
+                                            />
+                                            <div className="relative z-10 flex flex-col items-center bg-black/60 backdrop-blur-md p-4 rounded-xl border border-white/10">
+                                                <ImageIcon className="w-8 h-8 text-[var(--color-brand-accent)] mb-2" />
+                                                <span className="text-white font-medium truncate max-w-[200px]">{formData["WasteImage"].name}</span>
+                                                <span className="text-xs text-emerald-400 mt-1">Ready for YOLO Analysis</span>
+                                            </div>
+
+                                            <button
+                                                onClick={removeFile}
+                                                className="absolute top-4 right-4 p-2 bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white rounded-full transition-colors backdrop-blur-sm"
+                                            >
+                                                <X className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )}
                     </motion.div>
