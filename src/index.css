@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-bg: #111827;
+  --color-brand-surface: #1f2937;
+  --color-brand-text-primary: #f9fafb;
+  --color-brand-text-secondary: #9ca3af;
+  --color-brand-accent: #10b981;
+
+  --font-sans: "Inter", "Poppins", sans-serif;
+}
+
+@layer base {
+
+  html,
+  body {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-brand-bg);
+    color: var(--color-brand-text-primary);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+  }
+}
