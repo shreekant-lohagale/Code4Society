@@ -8,7 +8,7 @@
 
 ## 🏗️ Project Journey & Chronology
 
-This project was built from the ground up during the hackathon to solve a specific problem: existing sustainability tools are boring, static, and utilize outdated national averages. To win, we engineered a mathematically rigorous, physics-informed UI combined with a state-of-the-art **Dual-Model ML Architecture**.
+This project was built from the ground up during the hackathon to solve a specific problem: existing sustainability tools are boring, static, and utilize outdated national averages. To win, we engineered a mathematically rigorous, physics-informed UI combined with a state-of-the-art **Tri-Modal ML Architecture**.
 
 ### Phase 1: The Pitch Engine (Landing Page)
 We started by establishing a premium, high-impact landing page that explains the problem and pitches our unique AI solution to the judges within 30 seconds.
@@ -24,12 +24,12 @@ To feed our highly-specific Python models, we couldn't just use a standard form.
 4. **Energy & Waste:** Highly localized variables including screen time, boiling methods, and specific recycling schemas.
 5. **Computer Vision Input:** A drag-and-drop zone to feed physical images directly to our Object Detection model.
 
-### Phase 3: The Dual-Model Synthesis (The Brains)
-Unlike traditional calculators, EcoGuard splits the processing load across two distinct, parallel machine learning pipelines, aggregating them in the React UI context layer.
+### Phase 3: The Tri-Modal Synthesis (The Brains)
+Unlike traditional calculators, EcoGuard splits the processing load across three distinct, parallel machine learning pipelines (Tabular Regression, Computer Vision, and IoT Time-Series Forecasting), aggregating them in the React UI context layer.
 
 ---
 
-## 🚀 The Dual-Model ML Architecture Deep-Dive
+## 🚀 The Tri-Modal ML Architecture Deep-Dive
 
 ### Model 1: Lifestyle Regression (Gradient Boosting / XGBoost)
 - **Purpose**: Analyzes the continuous and categorical variables of a user's daily life.
@@ -44,7 +44,13 @@ Unlike traditional calculators, EcoGuard splits the processing load across two d
 - **Purpose**: Instantly detects and categorizes unexpected physical waste materials that standard tracking forms miss.
 - **Input**: Users upload a single image of their daily waste bin via the Wizard.
 - **Execution**: The YOLO AI model scans the image using edge-detection to map bounding boxes around recyclables and trash. It returns a structured JSON execution log of detected materials (e.g., Plastic, Cardboard), precise confidence ratings (%), estimated physical weights (g), and their independent carbon impact calculations (kg).
-- **Synthesis**: The frontend awaits both Promises, aggregates the Lifestyle Baseline with the YOLO Visual Waste impact, and renders a bifurcated `Total Carbon` scorecard.
+- **Synthesis**: The frontend awaits the parallel Promises, integrating the YOLO prediction into the final payload.
+
+### Model 3: EcoGuard SensorAI (Real-Time IoT Forecast Engine)
+- **Purpose**: Transforms the platform from a static predictor into a high-fidelity, real-time live environmental monitoring system.
+- **Input Features**: Live continuous readings coming from a physical **MQ-7 Gas Sensor** connected via ESP8266/NodeMCU hardware, containing the cumulative ADC sum, current hour, and day of the week.
+- **Execution**: A dedicated Flask API receives the hardware's data over the `/sensor_data` endpoint, immediately appending the output to `live_sensor_today.csv`. The `daily_emission_model.joblib` regression model parses this trajectory to forecast the exact total emission at midnight.
+- **Synthesis**: The React Dashboard integrates this real-time stream into a dedicated "Live Sensor Monitoring" card. Utilizing GSAP CountUp and Recharts, it plots the `Raw_ADC` values dynamically alongside the Lifestyle and Vision ML predictions, aggregating into a true Tri-Modal `Total Carbon` impact score.
 
 ---
 
@@ -153,6 +159,11 @@ EcoGuard Core Engine/      # XGBoost Lifestyle Model & Data Science
 ├── best_ml_model.joblib   # The pre-trained XGBoost Stacking Ensemble (R² 0.9885)
 ├── model_comp.ipynb       # Jupyter Notebook detailing model training and R² benchmarking
 └── Carbon-Emission.csv    # The raw training dataset
+
+EcoGuard IoT Sensor/       # Flask API & Real-Time Hardware Integration
+├── app.py                 # Flask server receiving NodeMCU /sensor_data
+├── daily_emission_model.joblib # The trained gas regression forecast model
+└── live_sensor_today.csv  # The real-time appended continuous sensor dataset
 ```
 
 ---

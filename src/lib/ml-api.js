@@ -104,3 +104,34 @@ export const predictImage = async (imageFile) => {
         }
     ];
 };
+
+/**
+ * Pipeline 3: IoT SensorAI Forecast Engine
+ * Mocks the daily_emission_model.joblib trained on MQ-7 gas sensor data.
+ * Expected Endpoint: GET /sensor_data
+ */
+export const predictSensorData = async () => {
+    console.log("Pipeline 3 -> Fetching Live Sensor Forecast...");
+
+    // Simulate network delay to Flask API
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    // Determine current hour to make mock data somewhat realistic
+    const currentHour = new Date().getHours() || 12;
+
+    // Simulate cumulative ADC reading logic
+    const current_cumulative_kg = parseFloat((currentHour * 0.45).toFixed(2));
+
+    // Variance simulating ML model prediction
+    const variance = (Math.random() * 1.5).toFixed(2);
+    const predicted_midnight_kg = parseFloat((10.8 + parseFloat(variance)).toFixed(2));
+
+    // Generate fake history for the live graph
+    const raw_adc_history = Array.from({ length: 15 }, () => Math.floor(Math.random() * 150) + 100);
+
+    return {
+        current_cumulative_kg,
+        predicted_midnight_kg,
+        raw_adc_history
+    };
+};

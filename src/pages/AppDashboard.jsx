@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import Wizard from '../components/calculator/Wizard';
 import Scorecard from '../components/calculator/Scorecard';
-import { predictLifestyle, predictImage } from '../lib/ml-api';
+import { predictLifestyle, predictImage, predictSensorData } from '../lib/ml-api';
 
 const AppDashboard = () => {
     const [lifestyleCarbon, setLifestyleCarbon] = useState(null);
     const [imageRes, setImageRes] = useState(null);
+    const [sensorData, setSensorData] = useState(null);
 
     const [isCalculating, setIsCalculating] = useState(false);
 
@@ -14,18 +15,21 @@ const AppDashboard = () => {
         console.log("Collected Data:", data);
 
         try {
-            // Run both backend pipelines in parallel
-            const [lifestyleResult, imageResult] = await Promise.all([
+            // Run all 3 backend pipelines in parallel
+            const [lifestyleResult, imageResult, sensorResult] = await Promise.all([
                 predictLifestyle(data),
-                predictImage(data.WasteImage)
+                predictImage(data.WasteImage),
+                predictSensorData()
             ]);
 
             setLifestyleCarbon(lifestyleResult.lifestyle_carbon);
             setImageRes(imageResult);
+            setSensorData(sensorResult);
         } catch (error) {
             console.error("Prediction failed:", error);
             setLifestyleCarbon(2435); // fallback
             setImageRes([]);
+            setSensorData(null);
         } finally {
             setIsCalculating(false);
         }
@@ -57,7 +61,7 @@ const AppDashboard = () => {
                         <Wizard onComplete={handleComplete} />
                     </div>
                 ) : (
-                    <Scorecard lifestyleCarbon={lifestyleCarbon} imageRes={imageRes} />
+                    <Scorecard lifestyleCarbon={lifestyleCarbon} imageRes={imageRes} sensorData={sensorData} />
                 )}
             </div>
 

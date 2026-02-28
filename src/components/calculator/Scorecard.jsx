@@ -1,15 +1,17 @@
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
-import { ArrowLeft, Leaf, ScanSearch } from 'lucide-react';
+import { Activity, ArrowLeft, Leaf, ScanSearch } from 'lucide-react';
 import CountUp from 'react-countup';
 
-const Scorecard = ({ lifestyleCarbon, imageRes }) => {
+const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
 
     const imageCarbon = imageRes && imageRes.length > 0
         ? imageRes.reduce((sum, item) => sum + item.carbon_kg, 0)
         : 0;
 
-    const totalCarbon = lifestyleCarbon + imageCarbon;
+    const sensorCarbon = sensorData ? sensorData.predicted_midnight_kg : 0;
+
+    const totalCarbon = lifestyleCarbon + imageCarbon + sensorCarbon;
 
     // Dynamic color threshold mapping based on carbon metrics 
     let status = "Medium";
@@ -28,7 +30,8 @@ const Scorecard = ({ lifestyleCarbon, imageRes }) => {
 
     const chartData = [
         { name: 'Lifestyle', CO2: lifestyleCarbon, color: '#10b981' }, // emerald
-        { name: 'Visual Waste', CO2: imageCarbon, color: '#8b5cf6' } // violet
+        { name: 'Visual Waste', CO2: Number(imageCarbon.toFixed(2)), color: '#8b5cf6' }, // violet
+        { name: 'Sensor Forecast', CO2: sensorCarbon, color: '#f59e0b' } // amber
     ];
 
     return (
@@ -42,7 +45,7 @@ const Scorecard = ({ lifestyleCarbon, imageRes }) => {
                 <div>
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#0b1020] rounded-full border border-white/10 mb-6 text-sm">
                         <Leaf className="w-4 h-4 text-[var(--color-brand-accent)]" />
-                        <span className="text-gray-300">Dual-Model Analysis Complete</span>
+                        <span className="text-gray-300">Tri-Modal AI Analysis Complete</span>
                     </div>
                     <h3 className="text-[var(--color-brand-text-secondary)] font-medium uppercase tracking-widest text-sm mb-2">Total Estimated Footprint</h3>
                     <div className="flex items-baseline gap-2">
@@ -55,21 +58,73 @@ const Scorecard = ({ lifestyleCarbon, imageRes }) => {
 
                 <div className="bg-[#0b1020]/50 border border-white/5 rounded-2xl p-6 min-w-[250px]">
                     <div className="space-y-3">
-                        <div className="flex justify-between items-center text-sm">
+                        <div className="flex justify-between items-center text-sm gap-8">
                             <span className="text-gray-400">Lifestyle Carbon</span>
-                            <span className="text-white font-medium">{lifestyleCarbon} kg</span>
+                            <span className="text-white font-medium">{Math.floor(lifestyleCarbon)} kg</span>
                         </div>
-                        <div className="flex justify-between items-center text-sm">
+                        <div className="flex justify-between items-center text-sm gap-8">
                             <span className="text-gray-400 flex items-center gap-1"><ScanSearch className="w-3 h-3" /> YOLO Waste</span>
-                            <span className="text-white font-medium">{imageCarbon > 0 ? imageCarbon.toFixed(3) : '0'} kg</span>
+                            <span className="text-white font-medium">{imageCarbon > 0 ? imageCarbon.toFixed(2) : '0'} kg</span>
                         </div>
-                        <div className="border-t border-white/10 pt-3 flex justify-between items-center">
-                            <span className="text-emerald-400 font-bold">Total Carbon</span>
+                        <div className="flex justify-between items-center text-sm gap-8">
+                            <span className="text-gray-400 flex items-center gap-1"><Activity className="w-3 h-3" /> SensorAI Forecast</span>
+                            <span className="text-white font-medium">{sensorCarbon > 0 ? sensorCarbon.toFixed(2) : '0'} kg</span>
+                        </div>
+                        <div className="border-t border-white/10 pt-3 flex justify-between items-center gap-8">
+                            <span className="text-emerald-400 font-bold">Total Equivalent</span>
                             <span className="text-emerald-400 font-bold">{totalCarbon.toFixed(2)} kg</span>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Middle: IoT Sensor Dashboard (New) */}
+            {sensorData && (
+                <div className="w-full bg-[#0b1020] border border-amber-500/20 rounded-2xl p-6 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />
+
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-8 relative z-10 w-full">
+                        <div className="w-full md:w-1/3">
+                            <h4 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                                <Activity className="w-5 h-5 text-amber-500" />
+                                Live Sensor Monitoring
+                            </h4>
+                            <p className="text-sm text-gray-400 mb-6">Real-time MQ-7 Gas readings forecasting the midnight total emission.</p>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                                    <span className="text-xs text-gray-500 uppercase font-semibold">Current (So Far)</span>
+                                    <div className="text-2xl font-black text-amber-500 tabular-nums">
+                                        <CountUp end={sensorData.current_cumulative_kg} decimals={2} duration={2} /> <span className="text-sm text-amber-500/50">kg</span>
+                                    </div>
+                                </div>
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                                    <span className="text-xs text-gray-500 uppercase font-semibold">Predicted Final</span>
+                                    <div className="text-2xl font-black text-rose-400 tabular-nums">
+                                        <CountUp end={sensorData.predicted_midnight_kg} decimals={2} duration={2.5} /> <span className="text-sm text-rose-400/50">kg</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Tiny Recharts Instance just for the sensor line */}
+                        <div className="w-full md:w-2/3 h-[140px] border border-white/5 rounded-xl bg-black/20 p-4">
+                            <div className="text-xs text-gray-500 mb-2 w-full flex justify-between"><span>Live ADC History</span> <span className="text-amber-500/80 animate-pulse">● Live</span></div>
+                            <div className="h-[90px] w-full flex items-end justify-between gap-1 opacity-70">
+                                {sensorData.raw_adc_history.map((val, i) => (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ height: 0 }}
+                                        animate={{ height: `${(val / 250) * 100}%` }}
+                                        transition={{ duration: 0.5, delay: i * 0.05 }}
+                                        className="w-full bg-amber-500 rounded-t-sm"
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Bottom Split Layout */}
             <div className="grid lg:grid-cols-2 gap-10 items-start">
@@ -113,10 +168,10 @@ const Scorecard = ({ lifestyleCarbon, imageRes }) => {
                     </div>
 
                     <div className="bg-emerald-950/20 border border-emerald-500/20 p-5 rounded-xl">
-                        <h5 className="font-bold text-emerald-400 mb-2">Reduction Suggestion</h5>
+                        <h5 className="font-bold text-emerald-400 mb-2">Multimodal Reduction Suggestion</h5>
                         <p className="text-sm text-gray-300 leading-relaxed">
                             Your carbon footprint is classified as <strong style={{ color }}>{status}</strong>.
-                            Our regression model notes that reducing private transport mileage and increasing renewable electricity usage are the fastest localized ways to drop this base score. Further, substituting petroleum-based plastics found in your Waste AI scan can lower compounding future emissions.
+                            Our regression model notes that reducing private transport mileage is the fastest localized ways to drop this base score. Stopping petroleum-based plastic usage prevents downstream emissions based on your Vision AI scan. Finally, your live gas sensor predicts an unsafe midnight total—consider modifying your immediate environment ventilation strategy.
                         </p>
                     </div>
 
