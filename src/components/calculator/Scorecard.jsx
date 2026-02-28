@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
-import { Activity, ArrowLeft, Leaf, ScanSearch } from 'lucide-react';
+import { Activity, ArrowLeft, Leaf, ScanSearch, TreePine } from 'lucide-react';
 import CountUp from 'react-countup';
 
 const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
@@ -12,6 +12,9 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
     const sensorCarbon = sensorData ? sensorData.predicted_midnight_kg : 0;
 
     const totalCarbon = lifestyleCarbon + imageCarbon + sensorCarbon;
+
+    // Average mature tree absorbs ~21.7 kg of CO2 per year
+    const treesNeeded = Math.ceil(totalCarbon / 21.7);
 
     // Dynamic color threshold mapping based on carbon metrics 
     let status = "Medium";
@@ -48,11 +51,18 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
                         <span className="text-gray-300">Tri-Modal AI Analysis Complete</span>
                     </div>
                     <h3 className="text-[var(--color-brand-text-secondary)] font-medium uppercase tracking-widest text-sm mb-2">Total Estimated Footprint</h3>
-                    <div className="flex items-baseline gap-2">
+                    <div className="flex items-baseline gap-2 mb-4">
                         <span className={`text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r ${textGrad}`}>
                             <CountUp end={totalCarbon} decimals={1} duration={2.5} separator="," />
                         </span>
                         <span className="text-2xl font-bold text-gray-400">kg/yr</span>
+                    </div>
+
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-950/30 border border-emerald-500/20 rounded-xl text-emerald-400 font-medium">
+                        <TreePine className="w-5 h-5" />
+                        <span className="flex items-center gap-1">
+                            Requires <CountUp end={treesNeeded} duration={3} className="font-bold text-xl" /> trees to offset annually
+                        </span>
                     </div>
                 </div>
 

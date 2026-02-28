@@ -46,6 +46,9 @@ Unlike traditional calculators, EcoGuard splits the processing load across three
 - **Execution**: The YOLO AI model scans the image using edge-detection to map bounding boxes around recyclables and trash. It returns a structured JSON execution log of detected materials (e.g., Plastic, Cardboard), precise confidence ratings (%), estimated physical weights (g), and their independent carbon impact calculations (kg).
 - **Synthesis**: The frontend awaits the parallel Promises, integrating the YOLO prediction into the final payload.
 
+### Real-Time Offset Calculation
+To combat eco-anxiety, the final dashboard instantly calculates the exact number of mature trees (at 21.7kg CO₂ absorbed/year) required to neutralize the user's distinct Tri-Modal footprint, rendering an animated environmental goal.
+
 ### Model 3: EcoGuard SensorAI (Real-Time IoT Forecast Engine)
 - **Purpose**: Transforms the platform from a static predictor into a high-fidelity, real-time live environmental monitoring system.
 - **Input Features**: Live continuous readings coming from a physical **MQ-7 Gas Sensor** connected via ESP8266/NodeMCU hardware, containing the cumulative ADC sum, current hour, and day of the week.
