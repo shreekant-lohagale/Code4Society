@@ -1,14 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Wizard from '../components/calculator/Wizard';
 import Scorecard from '../components/calculator/Scorecard';
+import GoogleAuth from '../components/auth/GoogleAuth';
 import { predictLifestyle, predictImage, predictSensorData } from '../lib/ml-api';
 
 const AppDashboard = () => {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [lifestyleCarbon, setLifestyleCarbon] = useState(null);
     const [imageRes, setImageRes] = useState(null);
     const [sensorData, setSensorData] = useState(null);
 
     const [isCalculating, setIsCalculating] = useState(false);
+
+    useEffect(() => {
+        const user = localStorage.getItem('eco_user');
+        if (user) {
+            setIsAuthenticated(true);
+        }
+    }, []);
+
+    const handleLogin = (sessionData) => {
+        setIsAuthenticated(true);
+        window.dispatchEvent(new Event('auth_change')); // notify navbar
+    };
 
     const handleComplete = async (data) => {
         setIsCalculating(true);
@@ -49,7 +63,9 @@ const AppDashboard = () => {
                     </p>
                 </div>
 
-                {!lifestyleCarbon ? (
+                {!isAuthenticated ? (
+                    <GoogleAuth onLogin={handleLogin} />
+                ) : !lifestyleCarbon ? (
                     <div className="relative">
                         {isCalculating && (
                             <div className="absolute inset-0 z-50 bg-[var(--color-brand-surface)]/80 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center">

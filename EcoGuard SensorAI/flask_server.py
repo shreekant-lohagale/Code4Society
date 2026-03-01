@@ -1,10 +1,26 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import pandas as pd
 from datetime import datetime
 import os
+import joblib
 
 app = Flask(__name__)
-CSV_FILE = 'MQ-7 Predictions/live_sensor_today.csv'
+# Enable CORS so the React Frontend on port 5173 can securely fetch the data
+CORS(app)
+
+CSV_FILE = 'live_sensor_today.csv' # Changed path to local dir
+
+# Load the trained AI model
+model = joblib.load('daily_emission_model.joblib')
+
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({
+        "status": "online", 
+        "service": "EcoGuard SensorAI Middleware",
+        "message": "Send NodeMCU data to POST /sensor_data. Fetch React UI data from GET /api/sensor_data."
+    }), 200
 
 @app.route('/sensor_data', methods=['POST'])
 def receive_data():
@@ -38,6 +54,47 @@ def receive_data():
 
     except Exception as e:
         print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/sensor_data', methods=['GET'])
+def get_sensor_prediction():
+    try:
+        now = datetime.now()
+        day_of_week = now.weekday()
+        click_hour = now.hour
+        click_minute = now.minute
+        
+        # Read the raw sensor data dumped by the NodeMCU today
+        if not os.path.isfile(CSV_FILE):
+            return jsonify({"error": "No sensor data collected today."}), 404
+            
+        live_data = pd.read_csv(CSV_FILE)
+        
+        # Guard against empty CSV
+        if live_data.empty:
+            return jsonify({"error": "Sensor CSV is empty."}), 404
+            
+        current_cumulative_sum = float(live_data['Raw_ADC'].sum())
+        
+        # Apply the trained model
+        ai_input = [[day_of_week, click_hour, click_minute, current_cumulative_sum]]
+        predicted_final_total = float(model.predict(ai_input)[0])
+        
+        # Grab the last 15 raw ADC values for the React Live Chart
+        raw_adc_history = live_data['Raw_ADC'].tail(15).tolist()
+        # If we have less than 15, pad the start with the first value so the graph looks okay
+        if len(raw_adc_history) < 15 and len(raw_adc_history) > 0:
+            pad = [raw_adc_history[0]] * (15 - len(raw_adc_history))
+            raw_adc_history = pad + raw_adc_history
+            
+        return jsonify({
+            "current_cumulative_kg": float(f"{current_cumulative_sum / 1000:.2f}"), # Mock scaling factor for kg
+            "predicted_midnight_kg": float(f"{predicted_final_total / 1000:.2f}"), # Mock scaling factor for kg
+            "raw_adc_history": raw_adc_history
+        }), 200
+
+    except Exception as e:
+        print(f"Prediction Error: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':

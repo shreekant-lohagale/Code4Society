@@ -107,15 +107,33 @@ export const predictImage = async (imageFile) => {
 
 /**
  * Pipeline 3: IoT SensorAI Forecast Engine
- * Mocks the daily_emission_model.joblib trained on MQ-7 gas sensor data.
- * Expected Endpoint: GET /sensor_data
+ * Fetches the daily_emission_model.joblib prediction from the Flask API.
+ * Expected Endpoint: GET http://127.0.0.1:5000/api/sensor_data
  */
 export const predictSensorData = async () => {
-    console.log("Pipeline 3 -> Fetching Live Sensor Forecast...");
+    console.log("Pipeline 3 -> Fetching Live Sensor Forecast from Flask...");
 
-    // Simulate network delay to Flask API
-    await new Promise(resolve => setTimeout(resolve, 800));
+    try {
+        // Attempt to hit the real local Flask server
+        const response = await fetch('http://127.0.0.1:5000/api/sensor_data', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
+        if (response.ok) {
+            const data = await response.json();
+            return data;
+        } else {
+            console.warn("Flask API returned an error, falling back to mock trajectory...");
+        }
+
+    } catch (error) {
+        console.warn("Flask API unreachable, falling back to mock trajectory...", error);
+    }
+
+    // --- FALLBACK MOCK LOGIC (If Flask server is off or throws 404) ---
     // Determine current hour to make mock data somewhat realistic
     const currentHour = new Date().getHours() || 12;
 
