@@ -34,8 +34,8 @@ const features = [
     },
     {
         icon: <Shield className="w-6 h-6 text-white" />,
-        title: "Future IoT Integration Ready",
-        content: "Built on an API-first backend architecture seamlessly ready to ingest timeseries data from smart home meters."
+        title: "Active IoT Telemetry",
+        content: "Seamlessly ingests real-time timeseries data from ESP8266 + MQ-7 hardware sensors via a dedicated Python Flask Microservice."
     }
 ];
 

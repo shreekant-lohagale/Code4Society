@@ -86,9 +86,9 @@ const ComparativeAnalysis = () => {
 
                     {/* Left Side: Features and Toggles */}
                     <div className="comp-left flex flex-col justify-center relative z-10">
-                        <h4 className="text-2xl font-bold text-white mb-4">Gradient Boosting Ecosystem</h4>
+                        <h4 className="text-2xl font-bold text-white mb-4">Tri-Modal ML Ecosystem</h4>
                         <p className="text-[var(--color-brand-text-secondary)] mb-8 leading-relaxed">
-                            Our Gradient Boosting pipeline integrates image feature extraction outperforming traditional regression models. Witness how utilizing localized real-time data adjustments refines predictions.
+                            Our architecture unifies Gradient Boosting with YOLO visual extraction and live IoT gas sensors, heavily outperforming traditional regression models. Witness how multimodal real-time telemetry refines our predictions.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-8 w-full">

@@ -18,8 +18,8 @@ const steps = [
     },
     {
         icon: <Cpu className="w-6 h-6 text-white" />,
-        title: "3. Dual-Model Synthesis",
-        description: "Lifestyle regression aggregates with visual waste data for hyper-accurate CO₂ metrics."
+        title: "3. Tri-Modal Synthesis",
+        description: "Lifestyle regression aggregates with YOLO vision and live IoT gas sensor data for hyper-accurate CO₂ metrics."
     },
     {
         icon: <Lightbulb className="w-6 h-6 text-white" />,

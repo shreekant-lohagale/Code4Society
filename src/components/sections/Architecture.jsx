@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Database, Server, Laptop, Cpu, ScanSearch } from 'lucide-react';
+import { Database, Server, Laptop, Cpu, ScanSearch, Activity, RadioTower } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const blocks = [
     { id: 'frontend', name: 'React + Tailwind', icon: <Laptop className="w-5 h-5" />, col: 'col-span-3' },
     { id: 'backend', name: 'FastAPI / Python', icon: <Server className="w-5 h-5" />, col: 'col-span-3' },
+    { id: 'iot', name: 'Flask + NodeMCU', icon: <RadioTower className="w-5 h-5" />, col: 'col-span-3' },
     { id: 'ml', name: 'Gradient Boosting (XGBoost)', icon: <Cpu className="w-5 h-5" />, col: 'col-span-1' },
     { id: 'db', name: 'Time-Series DB', icon: <Database className="w-5 h-5" />, col: 'col-span-1' }
 ];
@@ -80,23 +81,36 @@ const Architecture = () => {
                         <circle cx="20" cy="50" r="6" fill="#10b981" />
                     </svg>
 
-                    {/* API Layer */}
-                    <div className="arch-block relative z-10 bg-[var(--color-brand-bg)] border-2 border-blue-400/40 hover:border-blue-400 px-8 py-4 rounded-xl shadow-[0_0_20px_rgba(96,165,250,0.1)] w-full max-w-md flex items-center justify-center gap-3 group transition-colors cursor-default">
-                        <div className="p-2 bg-blue-400/20 rounded-lg text-blue-400 group-hover:scale-110 transition-transform">
-                            <Server className="w-6 h-6" />
+                    {/* API Layer - Split into FastAPI and Flask IoT */}
+                    <div className="flex flex-col md:flex-row gap-4 w-full max-w-2xl relative z-10 justify-center">
+                        <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-blue-400/40 hover:border-blue-400 px-4 py-4 rounded-xl shadow-[0_0_20px_rgba(96,165,250,0.1)] flex items-center justify-center gap-3 group transition-colors cursor-default">
+                            <div className="p-2 bg-blue-400/20 rounded-lg text-blue-400 group-hover:scale-110 transition-transform">
+                                <Server className="w-6 h-6" />
+                            </div>
+                            <div className="flex flex-col text-left">
+                                <span className="text-xs text-[var(--color-brand-text-secondary)] uppercase tracking-wider font-semibold">Vision/ML Backend</span>
+                                <span className="text-sm font-bold text-white">FastAPI Ecosystem</span>
+                            </div>
                         </div>
-                        <div className="flex flex-col">
-                            <span className="text-xs text-[var(--color-brand-text-secondary)] uppercase tracking-wider font-semibold">API Gateway / Backend</span>
-                            <span className="text-lg font-bold text-white">FastAPI Ecosystem</span>
+
+                        <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-amber-500/40 hover:border-amber-500 px-4 py-4 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.1)] flex items-center justify-center gap-3 group transition-colors cursor-default">
+                            <div className="p-2 bg-amber-500/20 rounded-lg text-amber-500 group-hover:scale-110 transition-transform">
+                                <RadioTower className="w-6 h-6" />
+                            </div>
+                            <div className="flex flex-col text-left">
+                                <span className="text-xs text-[var(--color-brand-text-secondary)] uppercase tracking-wider font-semibold">IoT Edge API</span>
+                                <span className="text-sm font-bold text-white">Flask + ESP8266</span>
+                            </div>
                         </div>
                     </div>
 
                     {/* Branching Connectors */}
-                    <div className="relative w-full max-w-md h-16 md:h-24 flex justify-between px-16 z-10">
-                        <svg className="connector-line absolute inset-0 w-full h-full" viewBox="0 0 400 100" fill="none" preserveAspectRatio="none">
-                            <path d="M200 0 L200 50 L80 50 L80 100" stroke="#60a5fa" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
-                            <path d="M200 0 L200 50 L320 50 L320 100" stroke="#60a5fa" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
-                            <circle cx="200" cy="50" r="6" fill="#60a5fa" />
+                    <div className="relative w-full max-w-2xl h-16 md:h-24 flex justify-between px-16 z-10">
+                        <svg className="connector-line absolute inset-0 w-full h-full" viewBox="0 0 600 100" fill="none" preserveAspectRatio="none">
+                            <path d="M300 0 L300 40 L100 40 L100 100" stroke="#60a5fa" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
+                            <path d="M300 0 L300 40 L300 100" stroke="#c084fc" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
+                            <path d="M300 0 L300 40 L500 40 L500 100" stroke="#f59e0b" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
+                            <circle cx="300" cy="40" r="6" fill="#60a5fa" />
                         </svg>
                     </div>
 
@@ -108,20 +122,27 @@ const Architecture = () => {
                             <span className="text-xs font-bold text-white uppercase tracking-wider">User DB</span>
                         </div>
 
-                        {/* Dual ML Pipeline */}
-                        <div className="flex-2 flex flex-col sm:flex-row gap-4 w-full">
+                        {/* Tri ML/Data Pipeline */}
+                        <div className="flex-3 flex flex-col sm:flex-row gap-4 w-full">
                             {/* Model 1: Regression */}
-                            <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-purple-400/40 hover:border-purple-400 py-4 px-2 rounded-xl shadow-[0_0_20px_rgba(192,132,252,0.15)] flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center relative overflow-hidden">
-                                <div className="absolute inset-0 bg-purple-400/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="text-purple-400 group-hover:scale-110 transition-transform relative z-10"><Cpu className="w-6 h-6" /></div>
-                                <span className="text-xs font-bold text-white relative z-10 uppercase tracking-wider">Lifestyle Regression</span>
+                            <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-emerald-400/40 hover:border-emerald-400 py-4 px-2 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.15)] flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center relative overflow-hidden">
+                                <div className="absolute inset-0 bg-emerald-400/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="text-emerald-400 group-hover:scale-110 transition-transform relative z-10"><Cpu className="w-6 h-6" /></div>
+                                <span className="text-[10px] md:text-xs font-bold text-white relative z-10 uppercase tracking-wider">Lifestyle Regression</span>
                             </div>
 
                             {/* Model 2: YOLO Vision */}
-                            <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-emerald-400/40 hover:border-emerald-400 py-4 px-2 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.15)] flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center relative overflow-hidden">
-                                <div className="absolute inset-0 bg-emerald-400/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="text-emerald-400 group-hover:scale-110 transition-transform relative z-10"><ScanSearch className="w-6 h-6" /></div>
-                                <span className="text-xs font-bold text-white relative z-10 uppercase tracking-wider">YOLO Image Vision</span>
+                            <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-purple-400/40 hover:border-purple-400 py-4 px-2 rounded-xl shadow-[0_0_20px_rgba(192,132,252,0.15)] flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center relative overflow-hidden">
+                                <div className="absolute inset-0 bg-purple-400/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="text-purple-400 group-hover:scale-110 transition-transform relative z-10"><ScanSearch className="w-6 h-6" /></div>
+                                <span className="text-[10px] md:text-xs font-bold text-white relative z-10 uppercase tracking-wider">YOLO Image Vision</span>
+                            </div>
+
+                            {/* Model 3: Time Series IoT */}
+                            <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-amber-500/40 hover:border-amber-500 py-4 px-2 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.15)] flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center relative overflow-hidden">
+                                <div className="absolute inset-0 bg-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="text-amber-500 group-hover:scale-110 transition-transform relative z-10"><Activity className="w-6 h-6" /></div>
+                                <span className="text-[10px] md:text-xs font-bold text-white relative z-10 uppercase tracking-wider">MQ-7 Sensor Forecaster</span>
                             </div>
                         </div>
                     </div>
