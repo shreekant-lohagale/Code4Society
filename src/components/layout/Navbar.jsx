@@ -48,7 +48,7 @@ const Navbar = () => {
         setUser(null);
         window.dispatchEvent(new Event('auth_change'));
         if (window.location.pathname === '/app') {
-            window.location.reload(); // Force app dashboard to kick back to login block
+            window.location.href = '/'; // redirect to home page
         }
     };
 

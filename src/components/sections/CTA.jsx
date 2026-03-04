@@ -61,10 +61,10 @@ const CTA = () => {
                         Join the sustainability movement. Upload your first data point and let our ML intelligence guide your next steps.
                     </p>
 
-                    <button className="inline-flex items-center justify-center gap-2 bg-[var(--color-brand-accent)] text-white px-10 py-5 rounded-xl font-bold text-lg shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:bg-emerald-400 hover:scale-105 hover:shadow-[0_0_40px_rgba(16,185,129,0.5)] transition-all duration-300">
+                    <Link to="/app" className="inline-flex items-center justify-center gap-2 bg-[var(--color-brand-accent)] text-white px-10 py-5 rounded-xl font-bold text-lg shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:bg-emerald-400 hover:scale-105 hover:shadow-[0_0_40px_rgba(16,185,129,0.5)] transition-all duration-300">
                         Launch App
                         <ArrowRight className="w-6 h-6" />
-                    </button>
+                    </Link>
 
                 </div>
             </div>

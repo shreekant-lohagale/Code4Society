@@ -59,7 +59,7 @@ const Architecture = () => {
                     <h3 className="text-3xl md:text-4xl font-bold text-white mb-6">Production-Ready Architecture</h3>
                 </div>
 
-                <div className="relative w-full aspect-[4/3] md:aspect-[16/9] bg-[var(--color-brand-surface)]/50 border border-white/10 rounded-3xl p-8 flex flex-col items-center justify-between overflow-hidden">
+                <div className="relative w-full h-auto min-h-[600px] md:min-h-0 md:aspect-[16/9] bg-[var(--color-brand-surface)]/50 border border-white/10 rounded-3xl p-4 sm:p-8 flex flex-col items-center justify-between overflow-hidden gap-6 md:gap-0">
 
                     {/* Abstract grid background */}
                     <div className="absolute inset-0 z-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
@@ -104,8 +104,8 @@ const Architecture = () => {
                         </div>
                     </div>
 
-                    {/* Branching Connectors */}
-                    <div className="relative w-full max-w-2xl h-16 md:h-24 flex justify-between px-16 z-10">
+                    {/* Branching Connectors - Desktop Only */}
+                    <div className="relative w-full max-w-2xl h-16 md:h-24 hidden md:flex justify-between px-16 z-10">
                         <svg className="connector-line absolute inset-0 w-full h-full" viewBox="0 0 600 100" fill="none" preserveAspectRatio="none">
                             <path d="M300 0 L300 40 L100 40 L100 100" stroke="#60a5fa" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
                             <path d="M300 0 L300 40 L300 100" stroke="#c084fc" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
@@ -115,7 +115,7 @@ const Architecture = () => {
                     </div>
 
                     {/* Data & ML Layer */}
-                    <div className="w-full max-w-2xl flex flex-col md:flex-row justify-between gap-4 z-10">
+                    <div className="w-full max-w-5xl flex flex-col lg:flex-row justify-center items-center gap-4 z-10 pb-4 md:pb-0">
                         {/* Time-Series DB */}
                         <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-amber-400/40 hover:border-amber-400 py-4 px-2 rounded-xl shadow-lg flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center">
                             <div className="text-amber-400 group-hover:scale-110 transition-transform"><Database className="w-6 h-6" /></div>
@@ -123,7 +123,7 @@ const Architecture = () => {
                         </div>
 
                         {/* Tri ML/Data Pipeline */}
-                        <div className="flex-3 flex flex-col sm:flex-row gap-4 w-full">
+                        <div className="w-full lg:w-3/4 flex flex-col sm:flex-row gap-4">
                             {/* Model 1: Regression */}
                             <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-emerald-400/40 hover:border-emerald-400 py-4 px-2 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.15)] flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center relative overflow-hidden">
                                 <div className="absolute inset-0 bg-emerald-400/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
