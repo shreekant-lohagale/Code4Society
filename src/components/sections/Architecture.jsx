@@ -109,7 +109,7 @@ const Architecture = () => {
                         </div>
 
                         {/* Dual ML Pipeline */}
-                        <div className="flex-2 flex gap-4 w-full">
+                        <div className="flex-2 flex flex-col sm:flex-row gap-4 w-full">
                             {/* Model 1: Regression */}
                             <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-purple-400/40 hover:border-purple-400 py-4 px-2 rounded-xl shadow-[0_0_20px_rgba(192,132,252,0.15)] flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center relative overflow-hidden">
                                 <div className="absolute inset-0 bg-purple-400/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>

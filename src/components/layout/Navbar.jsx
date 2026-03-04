@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react';
 import { cn } from '../../lib/utils';
-import { Leaf } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Leaf, Menu, X } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { googleLogout } from '@react-oauth/google';
 
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [user, setUser] = useState(null);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const location = useLocation();
+
+    // Close mobile menu when route changes
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [location]);
 
     const checkAuth = () => {
         const session = localStorage.getItem('eco_user');
@@ -111,8 +118,52 @@ const Navbar = () => {
                             </Link>
                         )}
                     </div>
+                    {/* Mobile Menu Toggle */}
+                    <div className="flex md:hidden items-center ml-4">
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="text-gray-300 hover:text-white focus:outline-none p-2 rounded-lg bg-white/5 border border-white/10"
+                        >
+                            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            {/* Mobile Navigation Menu */}
+            {isMobileMenuOpen && (
+                <div className="md:hidden absolute top-full left-0 right-0 bg-[#111827]/95 backdrop-blur-xl border-b border-white/10 shadow-2xl py-4 px-4 flex flex-col gap-4">
+                    {navLinks.map((link) => (
+                        <a
+                            key={link.name}
+                            href={link.href}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="text-base font-medium text-gray-300 hover:text-white px-4 py-3 rounded-xl hover:bg-white/5 transition-colors"
+                        >
+                            {link.name}
+                        </a>
+                    ))}
+
+                    {/* Mobile Auth Summary */}
+                    {user && (
+                        <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between px-4">
+                            <div className="flex items-center gap-3">
+                                {user.picture ? (
+                                    <img src={user.picture} alt={user.name} className="w-10 h-10 rounded-full border-2 border-[var(--color-brand-accent)]/30" referrerPolicy="no-referrer" />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-full bg-[var(--color-brand-accent)]/20 text-emerald-400 flex items-center justify-center font-bold">
+                                        {user.name.charAt(0)}
+                                    </div>
+                                )}
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-semibold text-white">{user.name}</span>
+                                    <span className="text-xs text-gray-400">Signed In</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
         </header>
     );
 };

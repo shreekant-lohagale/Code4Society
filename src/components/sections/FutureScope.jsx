@@ -91,7 +91,7 @@ const FutureScope = () => {
                                     </div>
 
                                     {/* Content */}
-                                    <div className={`w-11/12 pl-6 md:pl-0 md:w-5/12 flex flex-col ${!isEven ? 'md:items-end md:text-right' : 'md:items-start md:text-left'}`}>
+                                    <div className={`w-full pl-10 md:pl-0 md:w-5/12 flex flex-col ${!isEven ? 'md:items-end md:text-right' : 'md:items-start md:text-left'}`}>
                                         <div className="bg-[var(--color-brand-bg)] p-6 rounded-2xl border border-white/5 hover:border-[var(--color-brand-accent)]/30 hover:-translate-y-1 transition-all duration-300 w-full group relative overflow-hidden">
                                             <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-brand-accent)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                                             <h4 className="text-xl font-bold text-white mb-2">{item.title}</h4>

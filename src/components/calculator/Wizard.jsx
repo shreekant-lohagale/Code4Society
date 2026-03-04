@@ -321,11 +321,11 @@ const Wizard = ({ onComplete }) => {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="mt-10 flex border-t border-white/10 pt-6 justify-between items-center">
+            <div className="mt-10 flex flex-col-reverse sm:flex-row border-t border-white/10 pt-6 justify-between items-center gap-4">
                 <button
                     onClick={prevStep}
                     disabled={step === 1}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-[var(--color-brand-text-secondary)] hover:text-white hover:bg-white/5 transition-all disabled:opacity-30 disabled:pointer-events-none"
+                    className="flex w-full sm:w-auto items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium text-[var(--color-brand-text-secondary)] hover:text-white hover:bg-white/5 transition-all disabled:opacity-30 disabled:pointer-events-none"
                 >
                     <ArrowLeft className="w-5 h-5" />
                     Back
@@ -333,7 +333,7 @@ const Wizard = ({ onComplete }) => {
 
                 <button
                     onClick={nextStep}
-                    className="flex items-center gap-2 bg-[var(--color-brand-accent)] text-white px-8 py-3 rounded-xl font-bold shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:bg-emerald-400 transition-all"
+                    className="flex w-full sm:w-auto items-center justify-center gap-2 bg-[var(--color-brand-accent)] text-white px-8 py-3 rounded-xl font-bold shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:bg-emerald-400 transition-all"
                 >
                     {step === totalSteps ? 'Calculate Footprint' : 'Next Step'}
                     {step === totalSteps ? <CheckCircle2 className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}

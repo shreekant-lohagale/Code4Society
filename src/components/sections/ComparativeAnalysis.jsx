@@ -91,16 +91,16 @@ const ComparativeAnalysis = () => {
                             Our Gradient Boosting pipeline integrates image feature extraction outperforming traditional regression models. Witness how utilizing localized real-time data adjustments refines predictions.
                         </p>
 
-                        <div className="flex items-center gap-4 mb-8">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-8 w-full">
                             <button
                                 onClick={() => setUseRealData(false)}
-                                className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${!useRealData ? 'bg-[var(--color-brand-bg)] border border-[var(--color-brand-accent)]/50 text-white shadow-lg' : 'bg-transparent text-[var(--color-brand-text-secondary)] hover:text-white border border-transparent'}`}
+                                className={`w-full sm:w-auto px-6 py-3 rounded-xl font-medium transition-all duration-300 ${!useRealData ? 'bg-[var(--color-brand-bg)] border border-[var(--color-brand-accent)]/50 text-white shadow-lg' : 'bg-transparent text-[var(--color-brand-text-secondary)] hover:text-white border border-transparent'}`}
                             >
                                 Generic Data
                             </button>
                             <button
                                 onClick={() => setUseRealData(true)}
-                                className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${useRealData ? 'bg-[var(--color-brand-bg)] border border-[var(--color-brand-accent)]/50 text-[var(--color-brand-accent)] shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'bg-transparent text-[var(--color-brand-text-secondary)] hover:text-white border border-transparent'}`}
+                                className={`w-full sm:w-auto px-6 py-3 rounded-xl font-medium transition-all duration-300 ${useRealData ? 'bg-[var(--color-brand-bg)] border border-[var(--color-brand-accent)]/50 text-[var(--color-brand-accent)] shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'bg-transparent text-[var(--color-brand-text-secondary)] hover:text-white border border-transparent'}`}
                             >
                                 Real-World Data
                             </button>
