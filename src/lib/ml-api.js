@@ -114,8 +114,8 @@ export const predictSensorData = async () => {
     console.log("Pipeline 3 -> Fetching Live Sensor Forecast from Flask...");
 
     try {
-        // Attempt to hit the real local Flask server
-        const response = await fetch('http://127.0.0.1:5000/api/sensor_data', {
+        // Attempt to hit the real Render Flask IoT server
+        const response = await fetch('https://ecoguard-iot.onrender.com/api/sensor_data', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

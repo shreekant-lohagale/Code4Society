@@ -98,7 +98,8 @@ def get_sensor_prediction():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 10000))
     print("--- Flask Middleman API Started ---")
-    print("Listening for NodeMCU data on port 5000...")
+    print(f"Listening for NodeMCU data on port {port}...")
     # host='0.0.0.0' allows other devices on the same Wi-Fi to send data to this laptop
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=port)
