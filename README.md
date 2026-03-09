@@ -542,88 +542,174 @@ pytest --cov             # Coverage report
 npm install -g vercel
 vercel
 
-# Or connect GitHub repo to Vercel dashboard
+# Or connect the GitHub repository to the Vercel dashboard
+# Framework: Vite
 # Environment: Node.js 18+
-# Build: npm run build
-# Output: dist/
+# Build Command: npm run build
+# Output Directory: dist/
+````
+
+After deployment, the frontend will be available at:
+
+```
+https://ecoguard.vercel.app
 ```
 
-### Deploy Backend (AWS/GCP)
+---
 
-**AWS EC2:**
+### Deploy ML Backend (Render)
+
+Create a **Web Service** on Render connected to your GitHub repository.
+
 ```bash
-# Create instance, SSH in
-ssh -i key.pem ubuntu@instance.com
+# Build Command
+pip install -r "EcoGuard Vision Engine/requirements.txt"
 
-# Clone repo & setup
-git clone <repo>
-cd EcoGuard\ Vision\ Engine
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Start with gunicorn
-pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:8000 api:app
+# Start Command
+uvicorn "EcoGuard Vision Engine.api:app" --host 0.0.0.0 --port 10000
 ```
 
-**Google Cloud Run:**
+Render automatically assigns **port 10000** for web services.
+
+After deployment the ML API will be available at:
+
+```
+https://ecoguard-api.onrender.com
+```
+
+You can verify the API using:
+
+```
+https://ecoguard-api.onrender.com/docs
+```
+
+---
+
+### Deploy IoT Sensor Backend (Render)
+
+Create another **Web Service** on Render for the Flask sensor service.
+
 ```bash
-# Ensure Dockerfile exists
-gcloud run deploy ecoguard-api \
-  --source . \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated
+# Build Command
+pip install flask pandas scikit-learn joblib gunicorn
+
+# Start Command
+cd "EcoGuard IoT Sensor" && gunicorn flask_server:app
 ```
+
+The Flask application automatically binds to the **$PORT environment variable** required by Render.
+
+After deployment the IoT API will be available at:
+
+```
+https://ecoguard-iot.onrender.com
+```
+
+---
+
+### Production Architecture
+
+```
+User Browser
+      │
+      ▼
+Vercel (React Frontend)
+      │
+      ├──────────────► Render (FastAPI ML Service)
+      │                   • Lifestyle Regression Model
+      │                   • YOLO Vision Detection
+      │                   • Carbon Impact Calculation
+      │
+      └──────────────► Render (Flask IoT Service)
+                          • MQ-7 Sensor Data API
+                          • Real-Time Emission Forecast
+```
+
+---
+
+### Frontend API Configuration
+
+The frontend communicates with the deployed APIs using the following endpoints:
+
+```
+ML API: https://ecoguard-api.onrender.com
+IoT API: https://ecoguard-iot.onrender.com
+```
+
+These endpoints are configured in:
+
+```
+src/lib/ml-api.js
+```
+
+---
+
+### Free Tier Notes
+
+Since the system uses **Render free tier services**, the following limitations apply:
+
+| Limitation    | Impact                             |
+| ------------- | ---------------------------------- |
+| Cold Start    | First request may take ~20 seconds |
+| CPU Inference | YOLO runs on CPU instead of GPU    |
+| RAM Limits    | Optimized using YOLOv8 Nano        |
+
+These constraints are acceptable for **demo, hackathon, and prototype deployments**.
 
 ---
 
 ## 📈 Model Comparison
 
-| Aspect | Regression | Computer Vision | IoT Sensor |
-|--------|-----------|-----------------|-----------|
-| **Input** | 18 lifestyle features | JPG/PNG images | Real-time ADC |
-| **Output** | Annual CO2 (kg) | Material + Carbon | Daily forecast |
-| **Accuracy** | R² = 0.9800+ | mAP50 = 96% | Time-series fit |
-| **Speed** | <100ms | 2.4ms (GPU) | Real-time |
-| **Size** | 50 MB | 5.9 MB | 10 MB |
-| **Deployment** | Cloud / Edge | Edge / Cloud | IoT Device |
+| Aspect         | Regression            | Computer Vision   | IoT Sensor      |
+| -------------- | --------------------- | ----------------- | --------------- |
+| **Input**      | 18 lifestyle features | JPG/PNG images    | Real-time ADC   |
+| **Output**     | Annual CO2 (kg)       | Material + Carbon | Daily forecast  |
+| **Accuracy**   | R² = 0.9800+          | mAP50 = 96%       | Time-series fit |
+| **Speed**      | <100ms                | 2.4ms (GPU)       | Real-time       |
+| **Size**       | 50 MB                 | 5.9 MB            | 10 MB           |
+| **Deployment** | Cloud (Render)        | Cloud / Edge      | IoT Device      |
 
 ---
 
 ## 🎓 Model Training & Evaluation
 
 ### Regression Model Training
+
 See `EcoGuard Core Engine/model_comp.ipynb` for:
-- Data loading & EDA
-- Feature engineering & physics-informed features
-- Model benchmarking (8 algorithms)
-- Hyperparameter tuning
-- Cross-validation results
-- Ablation studies
-- SHAP explainability
+
+* Data loading & EDA
+* Feature engineering & physics-informed features
+* Model benchmarking (8 algorithms)
+* Hyperparameter tuning
+* Cross-validation results
+* Ablation studies
+* SHAP explainability
 
 ### Computer Vision Training
+
 See `EcoGuard Vision Engine/yolov8.ipynb` for:
-- Dataset preparation & annotation
-- YOLO model training pipeline
-- Augmentation strategies
-- Per-class performance analysis
-- Model export & optimization
-- Edge deployment setup
+
+* Dataset preparation & annotation
+* YOLO model training pipeline
+* Augmentation strategies
+* Per-class performance analysis
+* Model export & optimization
+* Edge deployment setup
 
 ---
 
 ## 📚 Documentation
 
-- **[REPORT.md](./REPORT.md)** - Comprehensive 400+ section technical documentation
-- **[SUMMARY.txt](./SUMMARY.txt)** - Executive summary (7-8 pages)
-- **[ML/README.md](./ML/README.md)** - API server documentation
-- **API Docs** - http://localhost:8000/docs (interactive Swagger UI)
-- **Jupyter Notebooks** - Detailed model training & analysis
+* **[REPORT.md](./REPORT.md)** - Comprehensive technical documentation
+* **[SUMMARY.txt](./SUMMARY.txt)** - Executive summary
+* **API Docs** - [https://ecoguard-api.onrender.com/docs](https://ecoguard-api.onrender.com/docs)
+* **Jupyter Notebooks** - Detailed model training & analysis
 
----
+```
+
+If you want, I can also help you add **a Live Demo badge + deployment badge at the top of your README** so your GitHub repo looks **more professional and attractive to judges/recruiters**.
+```
+
 
 ## 🤝 Contributing
 
