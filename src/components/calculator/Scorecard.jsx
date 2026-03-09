@@ -137,12 +137,12 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full bg-[var(--color-brand-surface)] border border-white/5 rounded-3xl p-6 md:p-10 shadow-2xl overflow-hidden flex flex-col gap-10"
+                className="w-full bg-[var(--color-brand-surface)] border border-white/5 rounded-3xl p-4 sm:p-6 md:p-10 shadow-2xl overflow-hidden flex flex-col gap-8 md:gap-10 min-w-0"
             >
                 {/* Header Area */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-8">
-                    <div>
-                        <div className="flex gap-3 mb-6 flex-wrap">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-8 w-full min-w-0">
+                    <div className="w-full min-w-0">
+                        <div className="flex gap-2 sm:gap-3 mb-6 flex-wrap w-full">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#0b1020] rounded-full border border-white/10 text-sm">
                                 <Leaf className="w-4 h-4 text-[var(--color-brand-accent)]" />
                                 <span className="text-gray-300">Tri-Modal AI Analysis Complete</span>
@@ -153,11 +153,11 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
                             </div>
                         </div>
                         <h3 className="text-[var(--color-brand-text-secondary)] font-medium uppercase tracking-widest text-sm mb-2">Total Estimated Footprint</h3>
-                        <div className="flex items-baseline gap-2 mb-4">
-                            <span className={`text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r ${textGrad}`}>
+                        <div className="flex flex-wrap items-baseline justify-center md:justify-start gap-2 mb-4 w-full">
+                            <span className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r ${textGrad} break-all`}>
                                 <CountUp end={totalCarbon} decimals={1} duration={2.5} separator="," />
                             </span>
-                            <span className="text-2xl font-bold text-gray-400">kg/yr</span>
+                            <span className="text-xl sm:text-2xl font-bold text-gray-400">kg/yr</span>
                         </div>
 
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-950/30 border border-emerald-500/20 rounded-xl text-emerald-400 font-medium">
@@ -168,7 +168,7 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
                         </div>
                     </div>
 
-                    <div className="bg-[#0b1020]/50 border border-white/5 rounded-2xl p-6 min-w-[250px]">
+                    <div className="bg-[#0b1020]/50 border border-white/5 rounded-2xl p-6 w-full md:w-auto min-w-[250px]">
                         <div className="space-y-3">
                             <div className="flex justify-between items-center text-sm gap-8">
                                 <span className="text-gray-400">Lifestyle Carbon</span>
@@ -192,28 +192,28 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
 
                 {/* Middle: IoT Sensor Dashboard (New) */}
                 {sensorData && (
-                    <div className="w-full bg-[#0b1020] border border-amber-500/20 rounded-2xl p-6 relative overflow-hidden">
+                    <div className="w-full bg-[#0b1020] border border-amber-500/20 rounded-2xl p-4 sm:p-6 relative overflow-hidden min-w-0">
                         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />
 
-                        <div className="flex flex-col md:flex-row justify-between items-start gap-8 relative z-10 w-full">
-                            <div className="w-full md:w-1/3">
+                        <div className="flex flex-col md:flex-row justify-between items-start gap-6 sm:gap-8 relative z-10 w-full min-w-0">
+                            <div className="w-full md:w-1/3 min-w-0">
                                 <h4 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-                                    <Activity className="w-5 h-5 text-amber-500" />
-                                    Live Sensor Monitoring
+                                    <Activity className="w-5 h-5 text-amber-500 shrink-0" />
+                                    <span className="truncate">Live Sensor</span>
                                 </h4>
-                                <p className="text-sm text-gray-400 mb-6">Real-time MQ-7 Gas readings forecasting the midnight total emission.</p>
+                                <p className="text-xs sm:text-sm text-gray-400 mb-6">Real-time MQ-7 Gas readings forecasting the midnight total emission.</p>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                                        <span className="text-xs text-gray-500 uppercase font-semibold">Current (So Far)</span>
-                                        <div className="text-2xl font-black text-amber-500 tabular-nums">
-                                            <CountUp end={sensorData.current_cumulative_kg} decimals={2} duration={2} /> <span className="text-sm text-amber-500/50">kg</span>
+                                <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full mt-4">
+                                    <div className="bg-white/5 p-3 sm:p-4 rounded-xl border border-white/5 flex flex-col items-center justify-center text-center">
+                                        <span className="text-[10px] sm:text-xs text-gray-500 uppercase font-semibold">Current</span>
+                                        <div className="text-base sm:text-xl font-black text-amber-500 tabular-nums break-all mt-1">
+                                            <CountUp end={sensorData.current_cumulative_kg} decimals={2} duration={2} /> <span className="text-[10px] sm:text-sm text-amber-500/50">kg</span>
                                         </div>
                                     </div>
-                                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                                        <span className="text-xs text-gray-500 uppercase font-semibold">Predicted Final</span>
-                                        <div className="text-2xl font-black text-rose-400 tabular-nums">
-                                            <CountUp end={sensorData.predicted_midnight_kg} decimals={2} duration={2.5} /> <span className="text-sm text-rose-400/50">kg</span>
+                                    <div className="bg-white/5 p-3 sm:p-4 rounded-xl border border-white/5 flex flex-col items-center justify-center text-center">
+                                        <span className="text-[10px] sm:text-xs text-gray-500 uppercase font-semibold">Predicted</span>
+                                        <div className="text-base sm:text-xl font-black text-rose-400 tabular-nums break-all mt-1">
+                                            <CountUp end={sensorData.predicted_midnight_kg} decimals={2} duration={2.5} /> <span className="text-[10px] sm:text-sm text-rose-400/50">kg</span>
                                         </div>
                                     </div>
                                 </div>
@@ -239,19 +239,19 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
                 )}
 
                 {/* Bottom Split Layout */}
-                <div className="grid lg:grid-cols-2 gap-10 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start w-full min-w-0">
 
                     {/* Left: Table & Suggestion */}
-                    <div className="space-y-8">
-                        <div>
+                    <div className="space-y-6 sm:space-y-8 w-full min-w-0">
+                        <div className="w-full min-w-0">
                             <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                                <ScanSearch className="w-5 h-5 text-violet-400" />
+                                <ScanSearch className="w-5 h-5 text-violet-400 shrink-0" />
                                 Computer Vision Log
                             </h4>
 
                             {imageRes && imageRes.length > 0 ? (
-                                <div className="border border-white/10 rounded-xl overflow-hidden bg-[#0b1020]">
-                                    <table className="w-full text-left text-sm">
+                                <div className="border border-white/10 rounded-xl overflow-x-auto bg-[#0b1020] w-full min-w-0">
+                                    <table className="w-full text-left text-sm min-w-max">
                                         <thead className="bg-white/5 text-gray-400">
                                             <tr>
                                                 <th className="px-4 py-3 font-medium">Material Detected</th>
@@ -300,13 +300,13 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
                     <div className="h-full min-h-[300px] w-full bg-[#0b1020] rounded-xl border border-white/5 p-6 relative">
                         <h4 className="text-sm font-bold text-gray-400 mb-6 uppercase tracking-wider">Model Contribution Breakdown</h4>
                         <ResponsiveContainer width="100%" height="100%" minHeight={250}>
-                            <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                            <BarChart data={chartData} margin={{ top: 20, right: 10, left: 10, bottom: 25 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                                <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
-                                <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
+                                <XAxis dataKey="name" stroke="#9ca3af" fontSize={10} tickLine={false} axisLine={false} tick={{ dy: 10 }} />
+                                <YAxis stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} width={40} />
                                 <Tooltip
                                     cursor={{ fill: 'rgba(255,255,255,0.02)' }}
-                                    contentStyle={{ backgroundColor: '#111827', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }}
+                                    contentStyle={{ backgroundColor: '#111827', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '12px' }}
                                     itemStyle={{ color: '#fff' }}
                                     formatter={(value) => `${value.toLocaleString('en-US', { maximumFractionDigits: 2 })} kg CO₂`}
                                 />
