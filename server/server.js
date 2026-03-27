@@ -12,6 +12,14 @@ dotenv.config();
 
 const app = express();
 
+console.log('🔄 EcoGuard API Initializing...');
+if (!process.env.MONGO_URI) {
+    console.error('❌ CRITICAL: MONGO_URI is missing from environment variables!');
+}
+if (!process.env.JWT_SECRET) {
+    console.error('❌ WARNING: JWT_SECRET is missing!');
+}
+
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(cors({
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
@@ -26,8 +34,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false,      // set true only with HTTPS in production
-        maxAge: 60000       // 60 seconds — just enough for OAuth redirect
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Required for cross-site cookies
+        maxAge: 600000 // 10 minutes
     }
 }));
 
@@ -46,12 +55,13 @@ const PORT = process.env.PORT || 5005;
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
-        console.log('✅ MongoDB Atlas connected');
-        app.listen(PORT, () =>
-            console.log(`🚀 Server running at http://localhost:${PORT}`)
-        );
+        console.log('✅ MongoDB Atlas connected successfully');
+        app.listen(PORT, () => {
+             console.log(`🚀 Production Server is LIVE on port ${PORT}`);
+        });
     })
     .catch(err => {
-        console.error('❌ MongoDB connection error:', err.message);
+        console.error('❌ FATAL: MongoDB connection failed!');
+        console.error('Error details:', err);
         process.exit(1);
     });
