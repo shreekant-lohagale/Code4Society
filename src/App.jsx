@@ -4,6 +4,7 @@ import Lenis from 'lenis';
 import Navbar from './components/layout/Navbar';
 import Landing from './pages/Landing';
 import AppDashboard from './pages/AppDashboard';
+import AuthSuccess from './pages/AuthSuccess';
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -43,6 +44,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/app" element={<AppDashboard />} />
+          <Route path="/auth/success" element={<AuthSuccess />} />
         </Routes>
 
         <footer className="w-full bg-[#0b1020] border-t border-white/5 py-8 text-center text-[var(--color-brand-text-secondary)] relative z-50">

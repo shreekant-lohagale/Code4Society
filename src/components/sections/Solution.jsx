@@ -105,11 +105,11 @@ const Solution = () => {
 
                     {/* Active growing line connected to scroll */}
                     <div
-                        className="process-line-active absolute top-[48px] left-0 right-0 h-1 bg-[length:200%_100%] bg-gradient-to-r from-[var(--color-brand-accent)] via-emerald-400 to-cyan-400 rounded-full z-0 origin-left hidden md:block"
+                        className="process-line-active absolute top-[48px] left-0 right-0 h-1 bg-gradient-to-r from-[#008B8B] via-[#00B3B3] to-[#00FFFF] rounded-full z-0 origin-left hidden md:block"
                         style={{ transform: "scaleX(0)" }}
                     >
                         {/* Glow effect on the active line */}
-                        <div className="absolute inset-0 bg-emerald-400 blur-md opacity-50"></div>
+                        <div className="absolute inset-0 bg-[#00FFFF] blur-md opacity-30"></div>
                     </div>
 
                     <div className="grid md:grid-cols-4 gap-12 md:gap-8 relative z-10">

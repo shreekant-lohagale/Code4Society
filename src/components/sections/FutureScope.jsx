@@ -73,7 +73,7 @@ const FutureScope = () => {
                 <div className="relative pl-8 md:pl-0">
                     {/* Vertical Timeline Track */}
                     <div className="absolute left-[39px] md:left-1/2 top-0 bottom-0 w-1 bg-white/5 md:-translate-x-1/2 rounded-full z-0 overflow-hidden">
-                        <div className="timeline-progress w-full bg-gradient-to-b from-[var(--color-brand-accent)] to-cyan-400" style={{ height: '0%' }}></div>
+                        <div className="timeline-progress w-full bg-gradient-to-b from-[#008B8B] to-[#00FFFF]" style={{ height: '0%' }}></div>
                     </div>
 
                     <div className="flex flex-col gap-12 relative z-10">

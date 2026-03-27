@@ -1,21 +1,65 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
-import { Activity, ArrowLeft, Leaf, ScanSearch, TreePine, TriangleAlert, Info, ShieldCheck, X } from 'lucide-react';
+import { Activity, ArrowLeft, Leaf, ScanSearch, TreePine, TriangleAlert, Info, ShieldCheck, X, Share2, Globe, Sparkles, History } from 'lucide-react';
 import CountUp from 'react-countup';
+import VirtualForestModal from '../gamification/VirtualForestModal';
+
+const BACKEND_URL = 'http://localhost:5005';
 
 const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
+    const [isForestOpen, setIsForestOpen] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(false);
+    const [syncSuccess, setSyncSuccess] = useState(false);
 
+    const token = localStorage.getItem('eco_token');
+
+    // Calculations should be at the top of the component to be available for functions
     const imageCarbon = imageRes && imageRes.length > 0
         ? imageRes.reduce((sum, item) => sum + item.carbon_kg, 0)
         : 0;
 
     const sensorCarbon = sensorData ? sensorData.predicted_midnight_kg : 0;
-
     const totalCarbon = lifestyleCarbon + imageCarbon + sensorCarbon;
 
     // Average mature tree absorbs ~21.7 kg of CO2 per year
     const treesNeeded = Math.ceil(totalCarbon / 21.7);
+
+    const syncToForest = async () => {
+        if (!token) return;
+        setIsSyncing(true);
+        try {
+            // 1. Sync to Node/MongoDB backend
+            const res = await fetch(`${BACKEND_URL}/auth/gamification/log`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}` 
+                },
+                body: JSON.stringify({ co2_kg: totalCarbon })
+            });
+
+            // 2. Sync to Flask/SQLite gamification backend
+            const userData = JSON.parse(localStorage.getItem('eco_user') || '{}');
+            if (userData.name) {
+                await fetch(`http://localhost:5001/api/users/by-username/${userData.name}/footprint`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ co2_kg: totalCarbon })
+                });
+            }
+
+            const data = await res.json();
+            if (data.success) {
+                setSyncSuccess(true);
+                setTimeout(() => setSyncSuccess(false), 3000);
+            }
+        } catch (err) {
+            console.error('Sync error:', err);
+        } finally {
+            setIsSyncing(false);
+        }
+    };
 
     let status = "Medium";
     let color = "#fbbf24"; // yellow
@@ -26,11 +70,11 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
 
     if (totalCarbon < 1500) {
         status = "Low";
-        color = "#10b981"; // green
-        textGrad = "from-[var(--color-brand-accent)] to-emerald-400";
+        color = "#008B8B"; // Dark Cyan
+        textGrad = "from-[var(--color-brand-accent)] to-cyan-400";
         AlertIcon = ShieldCheck;
         alertMsg = "Excellent! You are maintaining an environmentally sustainable, low-impact footprint.";
-        alertStyles = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+        alertStyles = "bg-cyan-500/10 border-cyan-500/20 text-cyan-400";
     } else if (totalCarbon > 3500) {
         status = "High";
         color = "#ef4444"; // red
@@ -41,7 +85,7 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
     }
 
     const chartData = [
-        { name: 'Lifestyle', CO2: lifestyleCarbon, color: '#10b981' }, // emerald
+        { name: 'Lifestyle', CO2: lifestyleCarbon, color: '#00ced1' }, // DarkTurboCyan
         { name: 'Visual Waste', CO2: Number(imageCarbon.toFixed(2)), color: '#8b5cf6' }, // violet
         { name: 'Sensor Forecast', CO2: sensorCarbon, color: '#f59e0b' } // amber
     ];
@@ -108,13 +152,13 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
                         exit={{ opacity: 0, scale: 0.95, y: -20 }}
                         className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
                     >
-                        <div className="bg-[#0b1020] border border-white/10 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden relative">
-                            <div className={`h-2 w-full ${status === 'High' ? 'bg-red-500' : status === 'Low' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                        <div className="bg-[#111111] border border-white/10 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden relative">
+                            <div className={`h-2 w-full ${status === 'High' ? 'bg-red-500' : status === 'Low' ? 'bg-cyan-500' : 'bg-amber-500'}`} />
                             <button onClick={() => setShowPopup(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
                                 <X className="w-5 h-5" />
                             </button>
                             <div className="p-8 pb-10 text-center flex flex-col items-center">
-                                <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-6 shadow-inner border border-white/10 ${status === 'High' ? 'bg-red-500/20 text-red-500' : status === 'Low' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-amber-500/20 text-amber-500'}`}>
+                                <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-6 shadow-inner border border-white/10 ${status === 'High' ? 'bg-red-500/20 text-red-500' : status === 'Low' ? 'bg-cyan-500/20 text-cyan-500' : 'bg-amber-500/20 text-amber-500'}`}>
                                     <AlertIcon className="w-8 h-8" />
                                 </div>
                                 <h2 className="text-2xl font-bold text-white mb-2">
@@ -124,7 +168,7 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
 
                                 <button
                                     onClick={() => setShowPopup(false)}
-                                    className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-transform hover:scale-105 active:scale-95 ${status === 'High' ? 'bg-red-500 hover:bg-red-400 shadow-red-500/20' : status === 'Low' ? 'bg-emerald-500 hover:bg-emerald-400 shadow-emerald-500/20' : 'bg-amber-500 hover:bg-amber-400 shadow-amber-500/20'}`}
+                                    className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-transform hover:scale-105 active:scale-95 ${status === 'High' ? 'bg-red-500 hover:bg-red-400 shadow-red-500/20' : status === 'Low' ? 'bg-cyan-500 hover:bg-cyan-400 shadow-cyan-500/20' : 'bg-amber-500 hover:bg-amber-400 shadow-amber-500/20'}`}
                                 >
                                     View Detailed Dashboard
                                 </button>
@@ -143,7 +187,7 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-8 w-full min-w-0">
                     <div className="w-full min-w-0">
                         <div className="flex gap-2 sm:gap-3 mb-6 flex-wrap w-full">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#0b1020] rounded-full border border-white/10 text-sm">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#111111] rounded-full border border-white/10 text-sm">
                                 <Leaf className="w-4 h-4 text-[var(--color-brand-accent)]" />
                                 <span className="text-gray-300">Tri-Modal AI Analysis Complete</span>
                             </div>
@@ -160,7 +204,7 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
                             <span className="text-xl sm:text-2xl font-bold text-gray-400">kg/yr</span>
                         </div>
 
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-950/30 border border-emerald-500/20 rounded-xl text-emerald-400 font-medium">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-950/30 border border-cyan-500/20 rounded-xl text-cyan-400 font-medium">
                             <TreePine className="w-5 h-5" />
                             <span className="flex items-center gap-1">
                                 Requires <CountUp end={treesNeeded} duration={3} className="font-bold text-xl" /> trees to offset annually
@@ -168,7 +212,7 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
                         </div>
                     </div>
 
-                    <div className="bg-[#0b1020]/50 border border-white/5 rounded-2xl p-6 w-full md:w-auto min-w-[250px]">
+                    <div className="bg-[#111111]/50 border border-white/5 rounded-2xl p-6 w-full md:w-auto min-w-[250px]">
                         <div className="space-y-3">
                             <div className="flex justify-between items-center text-sm gap-8">
                                 <span className="text-gray-400">Lifestyle Carbon</span>
@@ -183,8 +227,8 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
                                 <span className="text-white font-medium">{sensorCarbon > 0 ? sensorCarbon.toFixed(2) : '0'} kg</span>
                             </div>
                             <div className="border-t border-white/10 pt-3 flex justify-between items-center gap-8">
-                                <span className="text-emerald-400 font-bold">Total Equivalent</span>
-                                <span className="text-emerald-400 font-bold">{totalCarbon.toFixed(2)} kg</span>
+                                <span className="text-cyan-400 font-bold">Total Equivalent</span>
+                                <span className="text-cyan-400 font-bold">{totalCarbon.toFixed(2)} kg</span>
                             </div>
                         </div>
                     </div>
@@ -192,7 +236,7 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
 
                 {/* Middle: IoT Sensor Dashboard (New) */}
                 {sensorData && (
-                    <div className="w-full bg-[#0b1020] border border-amber-500/20 rounded-2xl p-4 sm:p-6 relative overflow-hidden min-w-0">
+                    <div className="w-full bg-[#111111] border border-amber-500/20 rounded-2xl p-4 sm:p-6 relative overflow-hidden min-w-0">
                         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />
 
                         <div className="flex flex-col md:flex-row justify-between items-start gap-6 sm:gap-8 relative z-10 w-full min-w-0">
@@ -250,7 +294,7 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
                             </h4>
 
                             {imageRes && imageRes.length > 0 ? (
-                                <div className="border border-white/10 rounded-xl overflow-x-auto bg-[#0b1020] w-full min-w-0">
+                                <div className="border border-white/10 rounded-xl overflow-x-auto bg-[#111111] w-full min-w-0">
                                     <table className="w-full text-left text-sm min-w-max">
                                         <thead className="bg-white/5 text-gray-400">
                                             <tr>
@@ -264,7 +308,7 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
                                             {imageRes.map((item, idx) => (
                                                 <tr key={idx} className="hover:bg-white/5 transition-colors">
                                                     <td className="px-4 py-3 capitalize">{item.material}</td>
-                                                    <td className="px-4 py-3 text-emerald-400">{Math.round(item.confidence * 100)}%</td>
+                                                    <td className="px-4 py-3 text-cyan-400">{Math.round(item.confidence * 100)}%</td>
                                                     <td className="px-4 py-3">{item.weight_g}g</td>
                                                     <td className="px-4 py-3 text-right font-medium text-white">{item.carbon_kg}</td>
                                                 </tr>
@@ -273,32 +317,64 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
                                     </table>
                                 </div>
                             ) : (
-                                <div className="p-6 bg-[#0b1020] border border-white/5 rounded-xl text-center text-gray-500 text-sm">
+                                <div className="p-6 bg-[#111111] border border-white/5 rounded-xl text-center text-gray-500 text-sm">
                                     No waste images were uploaded or processed.
                                 </div>
                             )}
                         </div>
 
-                        <div className="bg-emerald-950/20 border border-emerald-500/20 p-5 rounded-xl">
-                            <h5 className="font-bold text-emerald-400 mb-2">Multimodal Reduction Suggestion</h5>
+                        <div className="bg-cyan-950/20 border border-cyan-500/20 p-5 rounded-xl">
+                            <h5 className="font-bold text-cyan-400 mb-2">Multimodal Reduction Suggestion</h5>
                             <p className="text-sm text-gray-300 leading-relaxed">
                                 Your carbon footprint is classified as <strong style={{ color }}>{status}</strong>.
                                 Our regression model notes that reducing private transport mileage is the fastest localized ways to drop this base score. Stopping petroleum-based plastic usage prevents downstream emissions based on your Vision AI scan. Finally, your live gas sensor predicts an unsafe midnight total—consider modifying your immediate environment ventilation strategy.
                             </p>
                         </div>
 
-                        <button
-                            onClick={() => window.location.reload()}
-                            className="flex items-center gap-2 text-sm text-[var(--color-brand-text-secondary)] hover:text-white transition-colors group"
-                        >
-                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                            Recalculate
-                        </button>
+                        <div className="flex flex-wrap gap-4">
+                            <button
+                                onClick={() => window.location.reload()}
+                                className="flex items-center gap-2 text-sm text-[var(--color-brand-text-secondary)] hover:text-white transition-colors group"
+                            >
+                                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                                Recalculate
+                            </button>
+
+                            {token && (
+                                <button
+                                    onClick={syncToForest}
+                                    disabled={isSyncing}
+                                    className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl border transition-all ${
+                                        syncSuccess 
+                                        ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-400' 
+                                        : 'bg-white/5 border-white/10 text-gray-400 hover:text-white hover:bg-white/10'
+                                    }`}
+                                >
+                                    {isSyncing ? (
+                                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                    ) : syncSuccess ? (
+                                        <Sparkles className="w-4 h-4" />
+                                    ) : (
+                                        <History className="w-4 h-4" />
+                                    )}
+                                    {syncSuccess ? 'Synced to Forest!' : 'Sync to Virtual Forest'}
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     {/* Right: Bar Chart */}
-                    <div className="h-full min-h-[300px] w-full bg-[#0b1020] rounded-xl border border-white/5 p-6 relative">
-                        <h4 className="text-sm font-bold text-gray-400 mb-6 uppercase tracking-wider">Model Contribution Breakdown</h4>
+                    <div className="h-full min-h-[300px] w-full bg-[#111111] rounded-xl border border-white/5 p-6 relative">
+                        <div className="flex justify-between items-start mb-6">
+                            <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Model Contribution Breakdown</h4>
+                            <button 
+                                onClick={() => setIsForestOpen(true)}
+                                className="flex items-center gap-2 px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/20 rounded-lg text-xs font-bold text-cyan-400 hover:bg-cyan-500 hover:text-white transition-all shadow-lg shadow-cyan-500/10"
+                            >
+                                <TreePine className="w-3.5 h-3.5" />
+                                Open My Forest
+                            </button>
+                        </div>
                         <ResponsiveContainer width="100%" height="100%" minHeight={250}>
                             <BarChart data={chartData} margin={{ top: 20, right: 10, left: 10, bottom: 25 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
@@ -323,6 +399,11 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
 
                 </div>
             </motion.div>
+
+            <VirtualForestModal 
+                isOpen={isForestOpen} 
+                onClose={() => setIsForestOpen(false)} 
+            />
         </>
     );
 };

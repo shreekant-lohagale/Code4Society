@@ -3,6 +3,7 @@ import { cn } from '../../lib/utils';
 import { Leaf, Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { googleLogout } from '@react-oauth/google';
+import GetStartedButton from '../ui/GetStartedButton';
 
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -18,7 +19,13 @@ const Navbar = () => {
     const checkAuth = () => {
         const session = localStorage.getItem('eco_user');
         if (session) {
-            setUser(JSON.parse(session));
+            try {
+                setUser(JSON.parse(session));
+            } catch (e) {
+                console.error("Failed to parse user session", e);
+                localStorage.removeItem('eco_user');
+                setUser(null);
+            }
         } else {
             setUser(null);
         }
@@ -68,10 +75,10 @@ const Navbar = () => {
                 <div className="flex justify-between items-center">
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-2 group">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-brand-accent)] to-emerald-400 flex items-center justify-center shadow-lg shadow-[var(--color-brand-accent)]/20 group-hover:scale-105 transition-transform duration-300">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#008B8B] to-[#00FFFF] flex items-center justify-center shadow-lg shadow-[#008B8B]/20 group-hover:scale-105 transition-transform duration-300">
                             <Leaf className="text-white w-6 h-6" />
                         </div>
-                        <span className="text-2xl font-bold tracking-tight text-white">Eco<span className="text-[var(--color-brand-accent)]">Guard</span></span>
+                        <span className="text-2xl font-bold tracking-tight text-white">Eco<span className="text-[#00FFFF]">Guard</span></span>
                     </Link>
 
                     {/* Desktop Nav Links */}
@@ -85,6 +92,15 @@ const Navbar = () => {
                                 {link.name}
                             </a>
                         ))}
+                        {user && (
+                            <Link 
+                                to="/app" 
+                                className="text-sm font-bold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-2"
+                            >
+                                <Leaf className="w-4 h-4" />
+                                Virtual Forest
+                            </Link>
+                        )}
                     </nav>
 
                     {/* CTA / Auth State */}
@@ -93,13 +109,13 @@ const Navbar = () => {
                             <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl px-4 py-2">
                                 <div className="hidden sm:flex items-center gap-2">
                                     {user.picture ? (
-                                        <img src={user.picture} alt={user.name} className="w-7 h-7 rounded-full border border-emerald-500/30" referrerPolicy="no-referrer" />
+                                        <img src={user.picture} alt={user?.name || 'User'} className="w-7 h-7 rounded-full border border-[#008B8B]/30" referrerPolicy="no-referrer" />
                                     ) : (
-                                        <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold">
-                                            {user.name.charAt(0)}
+                                        <div className="w-7 h-7 rounded-full bg-[#008B8B]/20 text-[#00FFFF] flex items-center justify-center text-xs font-bold">
+                                            {user?.name?.charAt(0) || 'U'}
                                         </div>
                                     )}
-                                    <span className="text-sm font-medium text-gray-300">{user.name}</span>
+                                    <span className="text-sm font-medium text-gray-300">{user?.name || 'User'}</span>
                                 </div>
                                 <div className="w-px h-4 bg-white/10 hidden sm:block"></div>
                                 <button
@@ -110,12 +126,7 @@ const Navbar = () => {
                                 </button>
                             </div>
                         ) : (
-                            <Link
-                                to="/app"
-                                className="inline-flex items-center justify-center rounded-lg bg-[var(--color-brand-accent)] px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-[var(--color-brand-accent)]/20 hover:scale-105 hover:bg-emerald-400 transition-all duration-300 active:scale-95"
-                            >
-                                Get Started
-                            </Link>
+                            <GetStartedButton />
                         )}
                     </div>
                     {/* Mobile Menu Toggle */}
@@ -149,14 +160,14 @@ const Navbar = () => {
                         <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between px-4">
                             <div className="flex items-center gap-3">
                                 {user.picture ? (
-                                    <img src={user.picture} alt={user.name} className="w-10 h-10 rounded-full border-2 border-[var(--color-brand-accent)]/30" referrerPolicy="no-referrer" />
+                                    <img src={user.picture} alt={user?.name || 'User'} className="w-10 h-10 rounded-full border-2 border-[#008B8B]/30" referrerPolicy="no-referrer" />
                                 ) : (
-                                    <div className="w-10 h-10 rounded-full bg-[var(--color-brand-accent)]/20 text-emerald-400 flex items-center justify-center font-bold">
-                                        {user.name.charAt(0)}
+                                    <div className="w-10 h-10 rounded-full bg-[#008B8B]/20 text-[#00FFFF] flex items-center justify-center font-bold">
+                                        {user?.name?.charAt(0) || 'U'}
                                     </div>
                                 )}
                                 <div className="flex flex-col">
-                                    <span className="text-sm font-semibold text-white">{user.name}</span>
+                                    <span className="text-sm font-semibold text-white">{user?.name || 'User'}</span>
                                     <span className="text-xs text-gray-400">Signed In</span>
                                 </div>
                             </div>

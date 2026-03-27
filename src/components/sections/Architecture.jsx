@@ -65,8 +65,8 @@ const Architecture = () => {
                     <div className="absolute inset-0 z-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
 
                     {/* Client Layer */}
-                    <div className="arch-block relative z-10 bg-[var(--color-brand-bg)] border-2 border-[var(--color-brand-accent)]/40 hover:border-[var(--color-brand-accent)] px-8 py-4 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.1)] w-full max-w-md flex items-center justify-center gap-3 group transition-colors cursor-default">
-                        <div className="p-2 bg-[var(--color-brand-accent)]/20 rounded-lg text-[var(--color-brand-accent)] group-hover:scale-110 transition-transform">
+                    <div className="arch-block relative z-10 bg-[var(--color-brand-bg)] border-2 border-[#008B8B]/40 hover:border-[#00FFFF] px-8 py-4 rounded-xl shadow-[0_0_20px_rgba(0,139,139,0.15)] w-full max-w-md flex items-center justify-center gap-3 group transition-colors cursor-default">
+                        <div className="p-2 bg-[#008B8B]/20 rounded-lg text-[#00FFFF] group-hover:scale-110 transition-transform">
                             <Laptop className="w-6 h-6" />
                         </div>
                         <div className="flex flex-col">
@@ -77,8 +77,8 @@ const Architecture = () => {
 
                     {/* Connector 1 */}
                     <svg className="connector-line w-12 h-16 md:h-24 z-10" viewBox="0 0 40 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 0 L20 100" stroke="#10b981" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
-                        <circle cx="20" cy="50" r="6" fill="#10b981" />
+                        <path d="M20 0 L20 100" stroke="#008B8B" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
+                        <circle cx="20" cy="50" r="6" fill="#00FFFF" />
                     </svg>
 
                     {/* API Layer - Split into FastAPI and Flask IoT */}
@@ -125,9 +125,9 @@ const Architecture = () => {
                         {/* Tri ML/Data Pipeline */}
                         <div className="w-full lg:w-3/4 flex flex-col sm:flex-row gap-4">
                             {/* Model 1: Regression */}
-                            <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-emerald-400/40 hover:border-emerald-400 py-4 px-2 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.15)] flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center relative overflow-hidden">
-                                <div className="absolute inset-0 bg-emerald-400/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="text-emerald-400 group-hover:scale-110 transition-transform relative z-10"><Cpu className="w-6 h-6" /></div>
+                            <div className="arch-block flex-1 bg-[var(--color-brand-bg)] border-2 border-[#008B8B]/40 hover:border-[#00FFFF] py-4 px-2 rounded-xl shadow-[0_0_20px_rgba(0,139,139,0.15)] flex flex-col items-center justify-center gap-2 group transition-colors cursor-default text-center relative overflow-hidden">
+                                <div className="absolute inset-0 bg-[#008B8B]/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="text-[#00FFFF] group-hover:scale-110 transition-transform relative z-10"><Cpu className="w-6 h-6" /></div>
                                 <span className="text-[10px] md:text-xs font-bold text-white relative z-10 uppercase tracking-wider">Lifestyle Regression</span>
                             </div>
 

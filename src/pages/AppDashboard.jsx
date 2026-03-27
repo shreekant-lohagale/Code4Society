@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 import Wizard from '../components/calculator/Wizard';
 import Scorecard from '../components/calculator/Scorecard';
 import GoogleAuth from '../components/auth/GoogleAuth';
+import VirtualForestModal from '../components/gamification/VirtualForestModal';
 import { predictLifestyle, predictImage, predictSensorData } from '../lib/ml-api';
+import { TreePine, ExternalLink } from 'lucide-react';
 
 const AppDashboard = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [lifestyleCarbon, setLifestyleCarbon] = useState(null);
     const [imageRes, setImageRes] = useState(null);
     const [sensorData, setSensorData] = useState(null);
-
+    const [isForestOpen, setIsForestOpen] = useState(false);
     const [isCalculating, setIsCalculating] = useState(false);
 
     useEffect(() => {
@@ -56,11 +58,32 @@ const AppDashboard = () => {
             <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-[var(--color-brand-accent)]/5 to-[var(--color-brand-bg)] -z-10" />
 
             <div className="w-full max-w-4xl">
-                <div className="mb-12 text-center">
+                <div className="mb-12 text-center relative">
                     <h1 className="text-4xl font-extrabold text-white tracking-tight mb-4">Carbon Emission Calculator</h1>
-                    <p className="text-[var(--color-brand-text-secondary)] text-lg">
+                    <p className="text-[var(--color-brand-text-secondary)] text-lg mb-6">
                         Answer the following questions to get a hyper-accurate reading using our Gradient Boosting ML Model.
                     </p>
+
+                    {isAuthenticated && (
+                        <div className="flex flex-wrap justify-center gap-4 mt-8">
+                            <button 
+                                onClick={() => setIsForestOpen(true)}
+                                className="flex items-center gap-2 px-6 py-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-sm font-bold text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all shadow-lg shadow-emerald-500/10"
+                            >
+                                <TreePine className="w-4 h-4" />
+                                Open My Forest
+                            </button>
+                            <a 
+                                href="http://localhost:5001" 
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-6 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-all"
+                            >
+                                <ExternalLink className="w-4 h-4" />
+                                Go to Forest Game
+                            </a>
+                        </div>
+                    )}
                 </div>
 
                 {!isAuthenticated ? (
@@ -81,6 +104,10 @@ const AppDashboard = () => {
                 )}
             </div>
 
+            <VirtualForestModal 
+                isOpen={isForestOpen} 
+                onClose={() => setIsForestOpen(false)} 
+            />
         </div>
     );
 };
