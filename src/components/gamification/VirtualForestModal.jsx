@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, TreePine, Trophy, Users, Search, UserPlus, Flame, Leaf, History } from 'lucide-react';
 import VirtualTree from '../ui/VirtualTree';
 
-const BACKEND_URL = 'http://localhost:5005';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5005';
 
 const VirtualForestModal = ({ isOpen, onClose }) => {
     const [activeTab, setActiveTab] = useState('forest');

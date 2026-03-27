@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
 
-const BACKEND_URL = 'http://localhost:5005';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5005';
+const FOREST_URL = import.meta.env.VITE_GAMIFICATION_URL || 'http://localhost:5001';
 
 const GoogleAuth = ({ onLogin }) => {
     const [isLoading, setIsLoading] = useState(false);
@@ -127,7 +128,7 @@ const GoogleAuth = ({ onLogin }) => {
                                 <p className="text-xs text-emerald-400/60">Your metrics are now being synced.</p>
                             </div>
                             <a 
-                                href="http://localhost:5001" 
+                                href={FOREST_URL} 
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-full bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 shadow-lg shadow-emerald-500/20"

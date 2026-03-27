@@ -56,7 +56,7 @@ export const googleTokenLogin = async (req, res) => {
 
         // SYNC: Also ensure user exists in the Flask Gamification App
         try {
-            await fetch('http://localhost:5001/api/users', {
+            await fetch(`${process.env.GAMIFICATION_URL}/api/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -128,7 +128,7 @@ export const manualRegister = async (req, res) => {
 
         // SYNC: Flask Gamification App
         try {
-            await fetch('http://localhost:5001/api/users', {
+            await fetch(`${process.env.GAMIFICATION_URL}/api/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: user.username })
@@ -164,7 +164,7 @@ export const manualLogin = async (req, res) => {
 
         // SYNC: Flask Gamification App
         try {
-            await fetch('http://localhost:5001/api/users', {
+            await fetch(`${process.env.GAMIFICATION_URL}/api/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: user.username })

@@ -5,7 +5,8 @@ import { Activity, ArrowLeft, Leaf, ScanSearch, TreePine, TriangleAlert, Info, S
 import CountUp from 'react-countup';
 import VirtualForestModal from '../gamification/VirtualForestModal';
 
-const BACKEND_URL = 'http://localhost:5005';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5005';
+const FOREST_URL = import.meta.env.VITE_GAMIFICATION_URL || 'http://localhost:5001';
 
 const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
     const [isForestOpen, setIsForestOpen] = useState(false);
@@ -42,7 +43,7 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
             // 2. Sync to Flask/SQLite gamification backend
             const userData = JSON.parse(localStorage.getItem('eco_user') || '{}');
             if (userData.name) {
-                await fetch(`http://localhost:5001/api/users/by-username/${userData.name}/footprint`, {
+                await fetch(`${FOREST_URL}/api/users/by-username/${userData.name}/footprint`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ co2_kg: totalCarbon })
