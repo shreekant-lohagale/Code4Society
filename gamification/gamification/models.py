@@ -10,7 +10,7 @@ from bson import ObjectId
 import certifi
 
 # MongoDB Connection
-MONGO_URI = "mongodb+srv://user_1:DfKuyD4ptFHD8xgr@user.g0xdwqh.mongodb.net/?appName=User"
+MONGO_URI = os.environ.get("MONGO_URI") or "mongodb+srv://user_1:DfKuyD4ptFHD8xgr@user.g0xdwqh.mongodb.net/?appName=User"
 client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
 db = client.get_database("test") # Map to the shared 'test' database
 
