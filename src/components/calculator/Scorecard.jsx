@@ -13,6 +13,16 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
     const [isSyncing, setIsSyncing] = useState(false);
     const [syncSuccess, setSyncSuccess] = useState(false);
 
+    useEffect(() => {
+        // Debug log for production configuration
+        if (import.meta.env.PROD) {
+            console.log("🚀 Scorecard Production Sync Config:", {
+                backend: BACKEND_URL,
+                gamification: FOREST_URL
+            });
+        }
+    }, []);
+
     const token = localStorage.getItem('eco_token');
 
     // Calculations should be at the top of the component to be available for functions

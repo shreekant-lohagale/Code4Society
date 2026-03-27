@@ -62,8 +62,9 @@ const Navbar = () => {
     const navLinks = [
         { name: 'Problem', href: '/#problem' },
         { name: 'Solution', href: '/#solution' },
-        { name: 'Features', href: '/#features' },
         { name: 'Architecture', href: '/#architecture' },
+        { name: 'Gamification', href: '/#gamification' },
+        { name: 'Features', href: '/#features' },
     ];
 
     return (

@@ -14,6 +14,15 @@ const VirtualForestModal = ({ isOpen, onClose }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
+    useEffect(() => {
+        // Debug log for production configuration
+        if (import.meta.env.PROD) {
+            console.log("🚀 VirtualForest Production Config:", {
+                backend: BACKEND_URL,
+            });
+        }
+    }, []);
+
     const token = localStorage.getItem('eco_token');
 
     // ─── Data Fetching ────────────────────────────────────────────────────────

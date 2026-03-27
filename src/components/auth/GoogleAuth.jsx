@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
 
@@ -9,6 +9,17 @@ const GoogleAuth = ({ onLogin }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [syncSuccess, setSyncSuccess] = useState(false);
+
+    useEffect(() => {
+        // Debug log for production configuration
+        if (import.meta.env.PROD) {
+            console.log("🚀 EcoGuard Production Config:", {
+                backend: BACKEND_URL,
+                gamification: FOREST_URL,
+                status: BACKEND_URL.includes('localhost') ? '⚠️ FALLBACK TO LOCALHOST' : '✅ PRODUCTION URL DETECTED'
+            });
+        }
+    }, []);
 
     const login = useGoogleLogin({
         onSuccess: async (tokenResponse) => {

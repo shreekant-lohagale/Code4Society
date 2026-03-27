@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 const VirtualTree = ({ health = 'healthy', species = 'oak', size = 'md' }) => {
     // Colors based on health
     const colors = {
-        healthy:   { leaf: '#10b981', trunk: '#4b3621' }, // emerald green
+        healthy:   { leaf: '#00FFFF', trunk: '#4b3621' }, // Cyan
         neutral:   { leaf: '#fbbf24', trunk: '#4b3621' }, // amber/yellow
         unhealthy: { leaf: '#92400e', trunk: '#4b3621' }, // brown/withered
     };
