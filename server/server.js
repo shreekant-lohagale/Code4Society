@@ -27,6 +27,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+console.log('✅ Body Parsers registered');
 
 // Session (required for Passport OAuth redirect flow)
 app.use(session({
@@ -39,20 +40,28 @@ app.use(session({
         maxAge: 600000 // 10 minutes
     }
 }));
+console.log('✅ Session registered');
 
 app.use(passport.initialize());
+console.log('✅ Passport Init registered');
 app.use(passport.session());
+console.log('✅ Passport Session registered');
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
+console.log('🛣️ Registering Routes...');
 app.use('/auth', authRoutes);
+console.log('✅ Auth Routes registered');
 app.use('/auth/gamification', gamificationRoutes);
+console.log('✅ Gamification Routes registered');
 
 // Health check
 app.get('/', (req, res) => res.json({ status: 'EcoGuard API running ✅' }));
+console.log('✅ Health Check registered');
 
 // ─── Connect & Start ─────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5005;
 
+console.log('🗄️ Connecting to MongoDB...');
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log('✅ MongoDB Atlas connected successfully');
