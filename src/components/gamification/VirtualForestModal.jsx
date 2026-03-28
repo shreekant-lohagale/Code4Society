@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, TreePine, Trophy, Users, Search, UserPlus, Flame, Leaf, History } from 'lucide-react';
 import VirtualTree from '../ui/VirtualTree';
 
+const AUTH_API_URL = import.meta.env.VITE_AUTH_API_URL || (import.meta.env.DEV ? 'http://localhost:5005' : 'https://ecoguard-api.onrender.com');
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? 'http://localhost:5005' : 'https://ecoguard-api.onrender.com');
 
 const VirtualForestModal = ({ isOpen, onClose }) => {
@@ -31,15 +32,15 @@ const VirtualForestModal = ({ isOpen, onClose }) => {
         setIsLoading(true);
         try {
             const [forestRes, leaderboardRes, friendsRes] = await Promise.all([
-                fetch(`${BACKEND_URL}/auth/gamification/forest`, { headers: { Authorization: `Bearer ${token}` } }),
-                fetch(`${BACKEND_URL}/auth/gamification/leaderboard`, { headers: { Authorization: `Bearer ${token}` } }),
-                fetch(`${BACKEND_URL}/auth/gamification/friends`, { headers: { Authorization: `Bearer ${token}` } })
+                fetch(`${AUTH_API_URL}/auth/gamification/forest`, { headers: { Authorization: `Bearer ${token}` } }),
+                fetch(`${AUTH_API_URL}/auth/gamification/leaderboard`, { headers: { Authorization: `Bearer ${token}` } }),
+                fetch(`${AUTH_API_URL}/auth/gamification/friends`, { headers: { Authorization: `Bearer ${token}` } })
             ]);
 
             const [forest, board, comrades] = await Promise.all([
-                forestRes.json(),
-                leaderboardRes.json(),
-                friendsRes.json()
+                forestRes.ok ? forestRes.json() : { success: false },
+                leaderboardRes.ok ? leaderboardRes.json() : { success: false, leaderboard: [] },
+                friendsRes.ok ? friendsRes.json() : { success: false, friends: [] }
             ]);
 
             if (forest.success) setForestData(forest);
@@ -66,9 +67,10 @@ const VirtualForestModal = ({ isOpen, onClose }) => {
         }
 
         try {
-            const res = await fetch(`${BACKEND_URL}/auth/gamification/users/search?query=${query}`, {
+            const res = await fetch(`${AUTH_API_URL}/auth/gamification/users/search?query=${query}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            if (!res.ok) throw new Error('Search failed');
             const data = await res.json();
             if (data.success) setSearchResults(data.users);
         } catch (err) {
@@ -78,7 +80,7 @@ const VirtualForestModal = ({ isOpen, onClose }) => {
 
     const addFriend = async (friendId) => {
         try {
-            const res = await fetch(`${BACKEND_URL}/auth/gamification/friends/add`, {
+            const res = await fetch(`${AUTH_API_URL}/auth/gamification/friends/add`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -86,6 +88,7 @@ const VirtualForestModal = ({ isOpen, onClose }) => {
                 },
                 body: JSON.stringify({ friendId })
             });
+            if (!res.ok) throw new Error('Add friend failed');
             const data = await res.json();
             if (data.success) {
                 fetchData();
@@ -202,22 +205,28 @@ const VirtualForestModal = ({ isOpen, onClose }) => {
 
                             {activeTab === 'leaderboard' && (
                                 <div className="space-y-3">
-                                    {leaderboard.map((user, idx) => (
-                                        <div key={user._id} className={`flex items-center justify-between p-4 rounded-2xl border ${idx === 0 ? 'bg-cyan-500/10 border-cyan-500/30' : 'bg-white/2 border-white/5'}`}>
-                                            <div className="flex items-center gap-4">
-                                                <span className={`w-6 text-center font-bold ${idx < 3 ? 'text-amber-400' : 'text-gray-500'}`}>{idx + 1}</span>
-                                                <img src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} className="w-10 h-10 rounded-full bg-white/10 border border-white/10" alt="" />
-                                                <div>
-                                                    <p className="font-bold text-white">{user.username}</p>
-                                                    <p className="text-[10px] text-gray-500 font-bold uppercase">{user.monthsTracked} months active</p>
+                                    {leaderboard.length > 0 ? (
+                                        leaderboard.map((user, idx) => (
+                                            <div key={user._id} className={`flex items-center justify-between p-4 rounded-2xl border ${idx === 0 ? 'bg-cyan-500/10 border-cyan-500/30' : 'bg-white/2 border-white/5'}`}>
+                                                <div className="flex items-center gap-4">
+                                                    <span className={`w-6 text-center font-bold ${idx < 3 ? 'text-amber-400' : 'text-gray-500'}`}>{idx + 1}</span>
+                                                    <img src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} className="w-10 h-10 rounded-full bg-white/10 border border-white/10" alt="" />
+                                                    <div>
+                                                        <p className="font-bold text-white">{user.username}</p>
+                                                        <p className="text-[10px] text-gray-500 font-bold uppercase">{user.monthsTracked} months active</p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-lg font-black text-cyan-400">{user.avgCO2} <span className="text-[10px] font-bold">kg/m</span></p>
+                                                    <p className="text-[10px] text-gray-500 font-bold uppercase">Tree Requirement</p>
                                                 </div>
                                             </div>
-                                            <div className="text-right">
-                                                <p className="text-lg font-black text-cyan-400">{user.avgCO2} <span className="text-[10px] font-bold">kg/m</span></p>
-                                                <p className="text-[10px] text-gray-500 font-bold uppercase">Tree Requirement</p>
-                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="py-20 text-center">
+                                            <p className="text-gray-500 italic">No rankings available yet. Be the first to track your footprint!</p>
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
                             )}
 

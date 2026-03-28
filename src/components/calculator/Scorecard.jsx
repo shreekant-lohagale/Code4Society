@@ -5,6 +5,7 @@ import { Activity, ArrowLeft, Leaf, ScanSearch, TreePine, TriangleAlert, Info, S
 import CountUp from 'react-countup';
 import VirtualForestModal from '../gamification/VirtualForestModal';
 
+const AUTH_API_URL = import.meta.env.VITE_AUTH_API_URL || (import.meta.env.DEV ? 'http://localhost:5005' : 'https://ecoguard-api.onrender.com');
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? 'http://localhost:5005' : 'https://ecoguard-api.onrender.com');
 const FOREST_URL = import.meta.env.VITE_GAMIFICATION_URL || (import.meta.env.DEV ? 'http://localhost:5001' : 'https://ecoguard-forest.onrender.com');
 
@@ -41,7 +42,7 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
         setIsSyncing(true);
         try {
             // 1. Sync to Node/MongoDB backend
-            const res = await fetch(`${BACKEND_URL}/auth/gamification/log`, {
+            const res = await fetch(`${AUTH_API_URL}/auth/gamification/log`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
