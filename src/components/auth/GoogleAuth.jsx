@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
 
+const AUTH_API_URL = import.meta.env.VITE_AUTH_API_URL || 'https://ecoguard-api.onrender.com';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://ecoguard-api.onrender.com';
 const FOREST_URL = import.meta.env.VITE_GAMIFICATION_URL || 'https://ecoguard-forest.onrender.com';
 
@@ -27,7 +28,7 @@ const GoogleAuth = ({ onLogin }) => {
             setError(null);
             try {
                 // Send the Google access_token to our backend
-                const res = await fetch(`${BACKEND_URL}/auth/google/token`, {
+                const res = await fetch(`${AUTH_API_URL}/auth/google/token`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ access_token: tokenResponse.access_token }),

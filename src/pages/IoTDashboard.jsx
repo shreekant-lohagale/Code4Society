@@ -215,7 +215,7 @@ const IoTDashboard = () => {
                                 </p>
                                 {fetchError && <p className="text-sm text-rose-400 ml-4 mb-4">{fetchError}</p>}
                                 <div className="flex-1 w-full min-h-[250px]">
-                                    <ResponsiveContainer width="100%" height="100%">
+                                    <ResponsiveContainer width="100%" height={250}>
                                         <LineChart data={chartData} margin={{ top: 5, right: 30, bottom: 5, left: -20 }}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
                                             <XAxis dataKey="time" stroke="#ffffff50" fontSize={11} tickLine={false} axisLine={false} />

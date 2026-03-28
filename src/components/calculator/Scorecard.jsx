@@ -386,7 +386,7 @@ const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
                                 Open My Forest
                             </button>
                         </div>
-                        <ResponsiveContainer width="100%" height="100%" minHeight={250}>
+                        <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={chartData} margin={{ top: 20, right: 10, left: 10, bottom: 25 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                                 <XAxis dataKey="name" stroke="#9ca3af" fontSize={10} tickLine={false} axisLine={false} tick={{ dy: 10 }} />
