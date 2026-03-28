@@ -85,8 +85,16 @@ class ModelPredictor:
             import joblib
             lifestyle_path = self.models_path / 'lifestyle_model' / 'best_ml_model.joblib'
             if lifestyle_path.exists():
-                logger.info("Loading Lifestyle Model...")
-                self.lifestyle_model = joblib.load(str(lifestyle_path))
+                logger.info(f"Loading Lifestyle Model from {lifestyle_path}...")
+                loaded = joblib.load(str(lifestyle_path))
+                
+                # Handle dictionary wrapped models (common in SIC export)
+                if isinstance(loaded, dict) and 'model' in loaded:
+                    self.lifestyle_model = loaded['model']
+                    logger.info("✓ Lifestyle Model extracted from dictionary")
+                else:
+                    self.lifestyle_model = loaded
+                    logger.info("✓ Lifestyle Model loaded directly")
             else:
                 raise Exception(f"Lifestyle model missing at {lifestyle_path}")
         return self.lifestyle_model
@@ -265,6 +273,7 @@ class ModelPredictor:
                 denormalized.append(round(val * scale))
                 
             features_array = np.array(denormalized).reshape(1, -1)
+            logger.info(f"Lifestyle Prediction Input: {denormalized}")
             monthly_carbon = float(model.predict(features_array)[0])
             
             average_carbon = 500
