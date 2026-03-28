@@ -1,13 +1,19 @@
+# EcoGuard AI Backend Requirements (Optimized for 512MB RAM)
+# Using CPU-only versions and headless libraries to fit within Render limits
+
 ultralytics==8.4.18
-torch>=2.0
-opencv-python
+torch
+torchvision
+torchaudio
+opencv-python-headless
 numpy
 pandas
 scikit-learn
-xgboost
-lightgbm
-catboost
 joblib
 fastapi
 uvicorn
-onnxruntime-gpu
+python-multipart
+pydantic
+aiofiles
+onnxruntime
+requests

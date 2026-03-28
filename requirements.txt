@@ -1,19 +1,32 @@
-ultralytics==8.4.18
-torch>=2.0
-opencv-python
+# EcoGuard Root Requirements (Optimized for Render Builds)
+# This file is used for standard Render deployments from the root.
+# We use CPU-only versions to fit within 512MB RAM.
+
+# Core AI Engine
+fastapi
+uvicorn
+python-multipart
+pydantic
+aiofiles
 numpy
 pandas
 scikit-learn
-xgboost
-lightgbm
-catboost
 joblib
-fastapi
-uvicorn
-onnxruntime-gpu
+ultralytics
+torch
+torchvision
+torchaudio
+opencv-python-headless
+onnxruntime
+requests
+
+# IoT Backend (Flask)
 flask
 flask-cors
 gunicorn
 
+# Blockchain Integration
 web3
+
+# Environment & Ops
 python-dotenv
