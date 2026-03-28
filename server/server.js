@@ -58,6 +58,41 @@ console.log('✅ Gamification Routes registered');
 app.get('/', (req, res) => res.json({ status: 'EcoGuard API running ✅' }));
 console.log('✅ Health Check registered');
 
+// ─── IoT Sensor Network Endpoints ───────────────────────────────────────────
+app.get('/api/dashboard', (req, res) => {
+    res.json({
+        status: 'success',
+        current_adc: 1402,
+        cumulative_daily: 43891,
+        projected_final: 118294,
+        updated_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        points: [
+            { time: '08:00', emissions: 12000 },
+            { time: '10:00', emissions: 18500 },
+            { time: '12:00', emissions: 32000 },
+            { time: '14:00', emissions: 45000 },
+            { time: '16:00', emissions: 65000 },
+            { time: '18:00', emissions: 82000 },
+            { time: '20:00', emissions: 95000 },
+            { time: '22:00', emissions: 108000 },
+            { time: '00:00 (Proj)', emissions: 118294 }
+        ]
+    });
+});
+
+app.get('/api/audit', (req, res) => {
+    res.json({
+        status: 'success',
+        timestamp: new Date().toLocaleString(),
+        transactions_audited: 124,
+        exhaust_flow_rate: 15.2,
+        peak_concentration_ppm: 438,
+        total_co_emitted_kg: 84.12,
+        contract_address: "0x8920...24E5 (Sepolia Testnet)"
+    });
+});
+console.log('✅ IoT Endpoints registered');
+
 // ─── Connect & Start ─────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5005;
 

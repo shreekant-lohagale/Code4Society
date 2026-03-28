@@ -1,6 +1,7 @@
 """
 EcoGuard - FastAPI Backend
 Production-ready API server for all EcoGuard models
+Aligned with Frontend Integration Guide 🎨
 """
 
 import os
@@ -32,7 +33,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="EcoGuard API",
     description="AI-powered waste management and carbon tracking system",
-    version="1.0.0"
+    version="1.1.0"
 )
 
 # Add CORS middleware
@@ -71,7 +72,8 @@ async def root():
     return {
         "name": "EcoGuard API",
         "status": "running",
-        "mode": "lazy-loading-optimized"
+        "mode": "lazy-loading-optimized",
+        "version": "1.1.0"
     }
 
 @app.get("/health")
@@ -81,13 +83,17 @@ async def health_check():
         "timestamp": datetime.now().isoformat()
     }
 
-# ==================== VISION MODEL ====================
+# ==================== VISION & ANALYSIS ====================
 
-@app.post("/api/vision/detect")
-async def detect_objects(file: UploadFile = File(...)):
-    gc.collect() # Force GC before heavy AI task
+@app.post("/api/vision/analyze")
+async def analyze_image(file: UploadFile = File(...)):
+    """
+    Unified endpoint for detection, weight, and carbon analysis.
+    Aligned with the Frontend Integration Guide.
+    """
+    gc.collect() 
     try:
-        logger.info(f"Vision request: {file.filename}")
+        logger.info(f"Analyze request: {file.filename}")
         contents = await file.read()
         nparr = np.frombuffer(contents, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -95,9 +101,35 @@ async def detect_objects(file: UploadFile = File(...)):
         if img is None:
             raise HTTPException(status_code=400, detail="Invalid image")
         
+        # Temporary path for YOLO processing
         temp_dir = Path("/tmp")
         temp_dir.mkdir(exist_ok=True)
-        temp_path = temp_dir / f"ecoguard_{uuid.uuid4()}.jpg"
+        temp_path = temp_dir / f"analyze_{uuid.uuid4()}.jpg"
+        cv2.imwrite(str(temp_path), img)
+        
+        predictor = get_predictor()
+        result = predictor.analyze_image(str(temp_path))
+        
+        if temp_path.exists():
+            temp_path.unlink()
+        
+        return result
+    except Exception as e:
+        logger.error(f"Analysis error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/vision/detect")
+async def detect_objects(file: UploadFile = File(...)):
+    """Legacy detection-only endpoint"""
+    gc.collect()
+    try:
+        contents = await file.read()
+        nparr = np.frombuffer(contents, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        
+        temp_dir = Path("/tmp")
+        temp_dir.mkdir(exist_ok=True)
+        temp_path = temp_dir / f"detect_{uuid.uuid4()}.jpg"
         cv2.imwrite(str(temp_path), img)
         
         predictor = get_predictor()
@@ -106,10 +138,8 @@ async def detect_objects(file: UploadFile = File(...)):
         if temp_path.exists():
             temp_path.unlink()
         
-        result['image_shape'] = list(img.shape)
         return result
     except Exception as e:
-        logger.error(f"Vision error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # ==================== WEIGHT & CARBON ====================
@@ -144,7 +174,7 @@ async def predict_lifestyle(request: LifestylePredictRequest):
     gc.collect()
     try:
         if len(request.features) != 20:
-            raise HTTPException(status_code=400, detail="Expected 20 features")
+            raise HTTPException(status_code=400, detail="Expected 20 normalized features")
         
         predictor = get_predictor()
         return predictor.predict_lifestyle_carbon(request.features)
@@ -156,7 +186,7 @@ async def predict_lifestyle(request: LifestylePredictRequest):
 
 @app.on_event("startup")
 async def startup_event():
-    logger.info("EcoGuard API Starting (Optimized for 512MB RAM)...")
+    logger.info("EcoGuard API Aligned with Integration Guide (Lazy Loading enabled)...")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

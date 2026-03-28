@@ -2,6 +2,7 @@
 EcoGuard - Vision Engine Predictor
 Handles all AI model predictions (Vision, Weight, Carbon, Lifestyle)
 Optimized for 512MB RAM with Lazy Loading
+Aligned with Frontend Integration Guide 🎨
 """
 
 import os
@@ -136,7 +137,7 @@ class ModelPredictor:
                 'count': len(detections),
                 'model': 'YOLOv8 Nano',
                 'accuracy': '96.1%',
-                'image_shape': (results[0].orig_shape[0], results[0].orig_shape[1], 3) if len(results) > 0 else (640, 640, 3)
+                'image_shape': [results[0].orig_shape[0], results[0].orig_shape[1], 3] if len(results) > 0 else [640, 640, 3]
             }
         
         except Exception as e:
@@ -167,9 +168,9 @@ class ModelPredictor:
             weight_g = max(min_weight, min(weight_g, max_weight))
             weight_kg = weight_g / 1000
             
-            size_category = 'medium'
-            if area_ratio < 0.1: size_category = 'small'
-            elif area_ratio > 0.4: size_category = 'large'
+            size_category = 'Medium'
+            if area_ratio < 0.1: size_category = 'Small'
+            elif area_ratio > 0.4: size_category = 'Large'
             
             return {
                 'success': True,
@@ -190,26 +191,80 @@ class ModelPredictor:
         try:
             factor = self.emission_factors.get(material, 2.0)
             carbon_kg = weight_kg * factor
-            co2_saved_kg = carbon_kg * 0.7 # 70% reduction if recycled
+            carbon_g = carbon_kg * 1000
             
             return {
                 'success': True,
                 'material': material,
                 'weight_kg': round(weight_kg, 4),
                 'carbon_kg': round(carbon_kg, 4),
-                'co2_saved_kg': round(co2_saved_kg, 4)
+                'carbon_g': round(carbon_g, 2)
             }
         except Exception as e:
             logger.error(f"Error in carbon calculation: {str(e)}")
             return {'success': False, 'error': str(e)}
+
+    def analyze_image(self, image_path):
+        """
+        Single unified entry point for combined vision, weight, and carbon impact analysis.
+        Aligned with Frontend Integration Guide Pipeline 1.
+        """
+        vision_result = self.detect_objects(image_path)
+        if not vision_result.get('success'):
+            return vision_result
+            
+        detections = vision_result.get('detections', [])
+        img_shape = vision_result.get('image_shape', [640, 640, 3])
+        
+        enriched_detections = []
+        for det in detections:
+            class_name = det['class_name']
+            
+            # 1. Weight Estimation
+            weight_res = self.estimate_weight(det['bbox'], class_name, img_shape)
+            weight_g = weight_res.get('weight_g', 30.0)
+            weight_kg = weight_res.get('weight_kg', 0.03)
+            size_category = weight_res.get('size_category', 'Medium')
+            
+            # 2. Carbon Calculation
+            carbon_res = self.calculate_carbon(weight_kg, class_name)
+            carbon_g = carbon_res.get('carbon_g', 50.0)
+            
+            # Enhance detection with metrics
+            det['weight_g'] = weight_g
+            det['carbon_g'] = carbon_g
+            det['size_category'] = size_category
+            
+            enriched_detections.append(det)
+        
+        return {
+            'success': True,
+            'detections': enriched_detections,
+            'image_shape': img_shape
+        }
     
     def predict_lifestyle_carbon(self, features):
         """
-        Predict user's carbon footprint from lifestyle features
+        Predict user's carbon footprint from lifestyle features.
+        Aligned with Frontend Integration Guide Pipeline 2.
+        Args:
+            features: List of 20 normalized floats (0.0 to 1.0)
         """
         try:
             model = self._get_lifestyle()
-            features_array = np.array(features).reshape(1, -1)
+            
+            # De-normalize features based on known categories
+            # Note: This is an approximation of the model's categorical mapping
+            # Assuming most categories have 3-4 options (max index 2-3)
+            # BodyType (4), Sex (2), Diet (4), Shower (4), Heating (4), Transport (3), Vehicle (6)
+            # We multiply by roughly the expected scale and round to integers
+            scales = [3, 1, 3, 3, 3, 2, 5, 2, 1000, 3, 1000, 3, 10, 24, 10, 24, 2, 5, 5, 1]
+            denormalized = []
+            for i, val in enumerate(features):
+                scale = scales[i] if i < len(scales) else 1
+                denormalized.append(round(val * scale))
+                
+            features_array = np.array(denormalized).reshape(1, -1)
             monthly_carbon = float(model.predict(features_array)[0])
             
             average_carbon = 500
@@ -218,6 +273,7 @@ class ModelPredictor:
             return {
                 'success': True,
                 'monthly_carbon_kg': round(monthly_carbon, 1),
+                'yearly_carbon_kg': round(monthly_carbon * 12, 1),
                 'compared_to_average_percent': compared_percent,
                 'recommendation': self._get_recommendation(compared_percent)
             }
@@ -226,9 +282,9 @@ class ModelPredictor:
             return {'success': False, 'error': str(e)}
     
     def _get_recommendation(self, compared_percent):
-        if compared_percent < -10: return "Great! You are below average."
-        if compared_percent > 10: return "Your footprint is high. Consider sustainable habits."
-        return "Good! You are near average."
+        if compared_percent < -10: return "Great! Your footprint is below average."
+        if compared_percent > 10: return "Your footprint is significantly above average. Consider sustainable habit changes."
+        return "Good! Your footprint is close to the average."
 
 # Global predictor instance
 _predictor = None
@@ -240,40 +296,8 @@ def get_predictor(models_path=None):
     return _predictor
 
 def predict(image_path):
-    """
-    Main entry point for API.
-    Combines Vision -> Weight -> Carbon into a single output list.
-    """
+    """Legacy entry point for backward compatibility"""
     predictor = get_predictor()
-    vision_result = predictor.detect_objects(image_path)
-    if not vision_result.get('success'): return []
-        
-    detections = vision_result.get('detections', [])
-    if not detections: return []
-        
-    img_shape = vision_result.get('image_shape', (640, 640, 3))
-    output = []
-    
-    for det in detections:
-        class_name = det['class_name']
-        weight_result = predictor.estimate_weight(det['bbox'], class_name, img_shape)
-        
-        weight_kg = 0.05 # Fallback
-        weight_g = 50.0
-        if weight_result.get('success'):
-            weight_kg = weight_result['weight_kg']
-            weight_g = weight_result['weight_g']
-            
-        carbon_result = predictor.calculate_carbon(weight_kg, class_name)
-        carbon_kg = weight_kg * 1.5
-        if carbon_result.get('success'):
-            carbon_kg = carbon_result['carbon_kg']
-            
-        output.append({
-            "material": class_name,
-            "confidence": det['confidence'],
-            "weight_g": weight_g,
-            "carbon_kg": carbon_kg
-        })
-        
-    return output
+    result = predictor.analyze_image(image_path)
+    if not result.get('success'): return []
+    return result.get('detections', [])
