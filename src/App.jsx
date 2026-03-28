@@ -5,6 +5,8 @@ import Navbar from './components/layout/Navbar';
 import Landing from './pages/Landing';
 import AppDashboard from './pages/AppDashboard';
 import AuthSuccess from './pages/AuthSuccess';
+import VisionLifestyleDashboard from './pages/VisionLifestyleDashboard';
+import IoTDashboard from './pages/IoTDashboard';
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -45,6 +47,8 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/app" element={<AppDashboard />} />
           <Route path="/auth/success" element={<AuthSuccess />} />
+          <Route path="/vision-lifestyle" element={<VisionLifestyleDashboard />} />
+          <Route path="/iot-sensors" element={<IoTDashboard />} />
         </Routes>
 
         <footer className="w-full bg-[#0b1020] border-t border-white/5 py-8 text-center text-[var(--color-brand-text-secondary)] relative z-50">

@@ -84,7 +84,7 @@ const Navbar = () => {
 
                     {/* Desktop Nav Links */}
                     <nav className="hidden md:flex items-center gap-8">
-                        {navLinks.map((link) => (
+                        {!user && navLinks.map((link) => (
                             <a
                                 key={link.name}
                                 href={link.href}
@@ -94,13 +94,21 @@ const Navbar = () => {
                             </a>
                         ))}
                         {user && (
-                            <Link 
-                                to="/app" 
-                                className="text-sm font-bold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-2"
-                            >
-                                <Leaf className="w-4 h-4" />
-                                Virtual Forest
-                            </Link>
+                            <>
+                                <Link 
+                                    to="/iot-sensors" 
+                                    className="text-sm font-medium text-[var(--color-brand-text-secondary)] hover:text-white transition-colors flex items-center gap-2"
+                                >
+                                    IoT Network
+                                </Link>
+                                <Link 
+                                    to="/app" 
+                                    className="text-sm font-bold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-2"
+                                >
+                                    <Leaf className="w-4 h-4" />
+                                    AI Vision & Virtual Forest
+                                </Link>
+                            </>
                         )}
                     </nav>
 
@@ -145,7 +153,7 @@ const Navbar = () => {
             {/* Mobile Navigation Menu */}
             {isMobileMenuOpen && (
                 <div className="md:hidden absolute top-full left-0 right-0 bg-[#111827]/95 backdrop-blur-xl border-b border-white/10 shadow-2xl py-4 px-4 flex flex-col gap-4">
-                    {navLinks.map((link) => (
+                    {!user && navLinks.map((link) => (
                         <a
                             key={link.name}
                             href={link.href}
@@ -155,6 +163,26 @@ const Navbar = () => {
                             {link.name}
                         </a>
                     ))}
+
+                    {/* Mobile Auth Links */}
+                    {user && (
+                        <div className="flex flex-col gap-2 px-2 pb-2">
+                            <Link
+                                to="/iot-sensors"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="text-base font-medium text-gray-300 hover:text-white px-4 py-3 rounded-xl hover:bg-white/5 transition-colors"
+                            >
+                                IoT Network Dashboard
+                            </Link>
+                            <Link
+                                to="/app"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="text-base font-medium text-emerald-400 hover:text-emerald-300 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors flex items-center gap-2"
+                            >
+                                <Leaf className="w-5 h-5" /> AI Vision & Virtual Forest
+                            </Link>
+                        </div>
+                    )}
 
                     {/* Mobile Auth Summary */}
                     {user && (

@@ -1,105 +1,155 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-import pandas as pd
-from datetime import datetime
+# ==========================================
+# 1. ALL IMPORTS
+# ==========================================
 import os
-import joblib
+import json
+import time
+import threading
+from flask import Flask, request, jsonify
+from web3 import Web3
+from dotenv import load_dotenv
 
-app = Flask(__name__)
-# Enable CORS so the React Frontend on port 5173 can securely fetch the data
-CORS(app)
+# Import the Math/AI script logic
+try:
+    from app import predict_end_of_day_total
+except ImportError:
+    print("WARNING: Could not import app.predict_end_of_day_total. Ensure app.py is in the same directory.")
 
-CSV_FILE = 'live_sensor_today.csv' # Changed path to local dir
+# ==========================================
+# 2. FLASK APP INITIALIZATION
+# ==========================================
+flask_app = Flask(__name__) # Renamed to avoid shadowing app.py
 
-# Load the trained AI model
-model = joblib.load('daily_emission_model.joblib')
+# ==========================================
+# 3. BLOCKCHAIN CONFIG & THREAD LOGIC
+# ==========================================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ENV_PATH = os.path.join(BASE_DIR, '.env')
+ABI_PATH = os.path.join(BASE_DIR, 'CarbonFootprintLogger.json')
 
-@app.route('/', methods=['GET'])
-def index():
-    return jsonify({
-        "status": "online", 
-        "service": "EcoGuard SensorAI Middleware",
-        "message": "Send NodeMCU data to POST /sensor_data. Fetch React UI data from GET /api/sensor_data."
-    }), 200
+load_dotenv(ENV_PATH)
 
-@app.route('/sensor_data', methods=['POST'])
-def receive_data():
+INFURA_URL = os.getenv("INFURA_API_KEY") 
+w3 = Web3(Web3.HTTPProvider(INFURA_URL))
+
+# Ensure connection
+if w3.is_connected():
+    print("✅ Connected to Ethereum Sepolia via RPC")
+else:
+    print("❌ Failed to connect to Web3 Provider")
+
+CONTRACT_ADDRESS = Web3.to_checksum_address("0x72FF4FdA69117A69864B39AD9Ece10e67d86CF98")
+PRIVATE_KEY = os.getenv("PRIVATE_KEY") 
+ACCOUNT_ADDRESS = w3.eth.account.from_key(PRIVATE_KEY).address if getattr(w3.eth, 'account', None) else None
+
+# Load ABI safely
+abi = None
+if os.path.exists(ABI_PATH):
+    with open(ABI_PATH) as f:
+        abi = json.load(f)["abi"]
+    contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=abi)
+else:
+    print("⚠️ Missing CarbonFootprintLogger.json ABI file!")
+
+def blockchain_sync_loop():
+    print("--- 🔗 AI Blockchain Sync Thread Started ---")
+    while True:
+        try:
+            # Sleep first to avoid racing
+            time.sleep(120) 
+            
+            csv_path = os.path.join(BASE_DIR, 'live_sensor_today.csv')
+            
+            # Predict the FINAL carbon layout 
+            predicted_total, current_sum = predict_end_of_day_total(csv_path)
+            
+            if predicted_total is not None:
+                # Truncate the float to an integer for the Smart Contract
+                final_uint256 = int(predicted_total)
+                
+                print(f"[Web3] Syncing Final Predicted Estimation: {final_uint256} to Sepolia...")
+                
+                nonce = w3.eth.get_transaction_count(ACCOUNT_ADDRESS)
+                txn = contract.functions.logData(final_uint256).build_transaction({
+                    'chainId': 11155111,
+                    'gas': 300000, 
+                    'maxFeePerGas': w3.eth.gas_price,
+                    'maxPriorityFeePerGas': w3.eth.max_priority_fee,
+                    'nonce': nonce,
+                })
+
+                signed_txn = w3.eth.account.sign_transaction(txn, private_key=PRIVATE_KEY)
+                tx_hash = w3.eth.send_raw_transaction(signed_txn.raw_transaction)
+                
+                print(f"[Web3] Success! TX Hash: https://sepolia.etherscan.io/tx/{w3.to_hex(tx_hash)}")
+            else:
+                print("[Web3] Waiting for valid AI predictions...")
+                
+        except Exception as e:
+            print(f"[Web3] Blockchain Sync Error: {e}")
+
+# START THE THREAD ONLY IF WEB3 LOADED PROPERLY
+if PRIVATE_KEY and abi:
+    threading.Thread(target=blockchain_sync_loop, daemon=True).start()
+
+# ==========================================
+# 4. YOUR EXISTING FLASK ROUTES
+# ==========================================
+@flask_app.route('/sensor_data', methods=['POST'])
+def sensor_data():
     try:
-        # 1. Catch the JSON data packet from the NodeMCU
+        # 1. Grab the JSON payload sent by the NodeMCU
         data = request.get_json()
-        
-        if not data or 'Raw_ADC' not in data:
-            return jsonify({"error": "Invalid data format"}), 400
 
-        # 2. Attach a verified, real-world timestamp from your laptop
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # 2. Extract the values (fallback to 0 if something is missing)
+        raw_adc = data.get('Raw_ADC', 0)
+        node_volts = data.get('NodeMCU_Volts', 0.0)
+        sensor_volts = data.get('Sensor_Volts', 0.0)
+
+        # 3. Generate a current timestamp
+        timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+
+        # 4. Append to your local CSV
+        csv_path = os.path.join(BASE_DIR, 'live_sensor_today.csv')
+        file_exists = os.path.isfile(csv_path)
         
-        # 3. Format it into a 1-row DataFrame
-        new_row = pd.DataFrame([{
-            'Timestamp': current_time,
-            'Raw_ADC': data['Raw_ADC'],
-            'NodeMCU_Volts': data['NodeMCU_Volts'],
-            'Sensor_Volts': data['Sensor_Volts']
-        }])
-        
-        # 4. Safely append to the CSV file
-        # If the file doesn't exist yet, it creates it and writes the headers
-        if not os.path.isfile(CSV_FILE):
-            new_row.to_csv(CSV_FILE, index=False)
-        else:
-            new_row.to_csv(CSV_FILE, mode='a', header=False, index=False)
-            
-        print(f"[{current_time}] Data Saved -> ADC: {data['Raw_ADC']}")
-        return jsonify({"status": "success"}), 200
+        with open(csv_path, 'a') as f:
+            # Write headers if the file was just created
+            if not file_exists:
+                f.write("Timestamp,Raw_ADC,NodeMCU_Volts,Sensor_Volts\n")
+            # Write the actual data
+            f.write(f"{timestamp},{raw_adc},{node_volts},{sensor_volts}\n")
+
+        # 5. Tell the NodeMCU it was successful
+        return jsonify({"status": "success", "message": "Data logged to CSV"}), 200
 
     except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"error": str(e)}), 500
+        print(f"Route Error: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/api/sensor_data', methods=['GET'])
-def get_sensor_prediction():
+@flask_app.route('/prediction', methods=['GET'])
+def get_prediction():
+    """ 
+    Exposes the same backend calculation to the React frontend dash.
+    """
+    csv_path = os.path.join(BASE_DIR, 'live_sensor_today.csv')
     try:
-        now = datetime.now()
-        day_of_week = now.weekday()
-        click_hour = now.hour
-        click_minute = now.minute
-        
-        # Read the raw sensor data dumped by the NodeMCU today
-        if not os.path.isfile(CSV_FILE):
-            return jsonify({"error": "No sensor data collected today."}), 404
-            
-        live_data = pd.read_csv(CSV_FILE)
-        
-        # Guard against empty CSV
-        if live_data.empty:
-            return jsonify({"error": "Sensor CSV is empty."}), 404
-            
-        current_cumulative_sum = float(live_data['Raw_ADC'].sum())
-        
-        # Apply the trained model
-        ai_input = [[day_of_week, click_hour, click_minute, current_cumulative_sum]]
-        predicted_final_total = float(model.predict(ai_input)[0])
-        
-        # Grab the last 15 raw ADC values for the React Live Chart
-        raw_adc_history = live_data['Raw_ADC'].tail(15).tolist()
-        # If we have less than 15, pad the start with the first value so the graph looks okay
-        if len(raw_adc_history) < 15 and len(raw_adc_history) > 0:
-            pad = [raw_adc_history[0]] * (15 - len(raw_adc_history))
-            raw_adc_history = pad + raw_adc_history
-            
-        return jsonify({
-            "current_cumulative_kg": float(f"{current_cumulative_sum / 1000:.2f}"), # Mock scaling factor for kg
-            "predicted_midnight_kg": float(f"{predicted_final_total / 1000:.2f}"), # Mock scaling factor for kg
-            "raw_adc_history": raw_adc_history
-        }), 200
-
+        predicted_total, current_sum = predict_end_of_day_total(csv_path)
+        if predicted_total is not None:
+            return jsonify({
+                "status": "success", 
+                "predicted_total": int(predicted_total),
+                "current_sum": float(current_sum)
+            }), 200
+        else:
+            return jsonify({"status": "error", "message": "No data returned from AI"}), 404
     except Exception as e:
-        print(f"Prediction Error: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"status": "error", "message": str(e)}), 500
 
+
+# ==========================================
+# 5. THE SERVER IGNITION (Do not miss this)
+# ==========================================
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 10000))
-    print("--- Flask Middleman API Started ---")
-    print(f"Listening for NodeMCU data on port {port}...")
-    # host='0.0.0.0' allows other devices on the same Wi-Fi to send data to this laptop
-    app.run(host='0.0.0.0', port=port)
+    # host='0.0.0.0' allows your NodeMCU to connect over Wi-Fi.
+    flask_app.run(host='0.0.0.0', port=5000, debug=False)

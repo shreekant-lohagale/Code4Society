@@ -1,43 +1,47 @@
-# Conversts the raw data into a daily cumulative sum format, which is used for training the model.
-
 import pandas as pd
 import datetime
 import joblib
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_FILE = os.path.join(BASE_DIR, 'daily_emission_model.joblib')
 
 # 1. Load the trained AI brain
-model = joblib.load('daily_emission_model.joblib')
+model = joblib.load(MODEL_FILE)
 
 def predict_end_of_day_total(today_csv_file):
-    """
-    This function runs the exact second you click the "Predict" button.
-    """
-    # 2. Extract the exact current time
     now = datetime.datetime.now()
-    day_of_week = now.weekday() # Monday is 0, Sunday is 6
+    day_of_week = now.weekday()
     click_hour = now.hour
     click_minute = now.minute
     
-    # 3. Read the raw sensor data dumped by the NodeMCU so far TODAY
-    # (Assuming the NodeMCU saves today's data into 'live_sensor_today.csv')
     try:
         live_data = pd.read_csv(today_csv_file)
         
-        # Calculate the mathematical sum of all emissions recorded since midnight
-        current_cumulative_sum = live_data['Raw_ADC'].sum()
+        # --- THE MATH FIX ---
+        # Average the 10-second readings into 1-minute chunks
+        live_data['Timestamp'] = pd.to_datetime(live_data['Timestamp'])
+        minute_averaged_data = live_data.set_index('Timestamp').resample('1min')['Raw_ADC'].mean()
+        
+        # Sum the averaged minutes
+        current_cumulative_sum = float(minute_averaged_data.dropna().sum())
         
     except FileNotFoundError:
         print("No data collected from sensor today yet!")
-        return None
+        return None, None
 
-    # 4. Package the data exactly how the model demands it
+    # Package the data
     ai_input = [[day_of_week, click_hour, click_minute, current_cumulative_sum]]
     
-    # 5. Get the prediction
+    # Get the prediction
     predicted_final_total = model.predict(ai_input)[0]
     
     return predicted_final_total, current_cumulative_sum
 
-# --- Example of what happens when you click the button ---
-# predicted_total, current_sum = predict_end_of_day_total('live_sensor_today.csv')
-# print(f"Gas measured so far: {current_sum}")
-# print(f"AI Predicts Final Midnight Total will be: {predicted_total}")
+# --- To test this file in your terminal, uncomment the lines below ---
+# if __name__ == "__main__":
+#     csv_path = os.path.join(BASE_DIR, 'live_sensor_today.csv')
+#     predicted_total, current_sum = predict_end_of_day_total(csv_path)
+#     if predicted_total is not None:
+#         print(f"Gas measured so far (Averaged Sum): {current_sum:.2f}")
+#         print(f"AI Predicts Final Midnight Total will be: {predicted_total:.2f}")
