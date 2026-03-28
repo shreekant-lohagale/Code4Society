@@ -1,0 +1,24 @@
+# EcoGuard Optimized Root Requirements
+# This file is used for generic Render builds from the root
+# We use CPU-only versions to fit within 512MB RAM
+
+fastapi
+uvicorn
+python-multipart
+pydantic
+aiofiles
+numpy
+pandas
+scikit-learn
+joblib
+ultralytics
+torch
+torchvision
+torchaudio
+opencv-python-headless
+onnxruntime
+requests
+flask
+flask-cors
+gunicorn
+python-dotenv

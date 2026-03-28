@@ -1,0 +1,16 @@
+ultralytics==8.4.18
+torch
+torchvision
+torchaudio
+opencv-python-headless
+numpy
+pandas
+scikit-learn
+joblib
+fastapi
+uvicorn
+python-multipart
+pydantic
+aiofiles
+onnxruntime
+requests
