@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
 
-const AUTH_API_URL = import.meta.env.VITE_AUTH_API_URL || 'https://ecoguard-api.onrender.com';
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://ecoguard-api.onrender.com';
-const FOREST_URL = import.meta.env.VITE_GAMIFICATION_URL || 'https://ecoguard-forest.onrender.com';
+const AUTH_API_URL = import.meta.env.VITE_AUTH_API_URL || (import.meta.env.DEV ? 'http://localhost:5005' : 'https://ecoguard-api.onrender.com');
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? 'http://localhost:5005' : 'https://ecoguard-api.onrender.com');
+const FOREST_URL = import.meta.env.VITE_GAMIFICATION_URL || (import.meta.env.DEV ? 'http://localhost:5001' : 'https://ecoguard-forest.onrender.com');
 
 const GoogleAuth = ({ onLogin }) => {
     const [isLoading, setIsLoading] = useState(false);
