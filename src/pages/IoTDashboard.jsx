@@ -214,7 +214,7 @@ const IoTDashboard = () => {
                                     {projectedFinal.toLocaleString()} <span className="text-sm text-blue-400 font-medium tracking-normal">PROJECTED FINAL</span>
                                 </p>
                                 {fetchError && <p className="text-sm text-rose-400 ml-4 mb-4">{fetchError}</p>}
-                                <div className="flex-1 w-full min-h-[200px]">
+                                <div className="flex-1 w-full min-h-[250px]">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <LineChart data={chartData} margin={{ top: 5, right: 30, bottom: 5, left: -20 }}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />

@@ -28,25 +28,28 @@ const AppDashboard = () => {
 
     const handleComplete = async (data) => {
         setIsCalculating(true);
-        console.log("Collected Data:", data);
+        console.log("🚀 Starting Dual-Model AI Pipeline...", data);
 
         try {
-            // Run all 3 backend pipelines in parallel
+            // Run all 3 backend pipelines in parallel with 15s timeout protection
             const [lifestyleResult, imageResult, sensorResult] = await Promise.all([
                 predictLifestyle(data),
                 predictImage(data.WasteImage),
                 predictSensorData()
             ]);
 
+            console.log("✅ Pipeline Complete. Results received.");
             setLifestyleCarbon(lifestyleResult.lifestyle_carbon);
             setImageRes(imageResult);
             setSensorData(sensorResult);
         } catch (error) {
-            console.error("Prediction failed:", error);
-            setLifestyleCarbon(2435); // fallback
+            console.error("❌ Critical Prediction Failure:", error);
+            // Universal fallback to ensure UI never hangs
+            setLifestyleCarbon(2435); 
             setImageRes([]);
             setSensorData(null);
         } finally {
+            console.log("🏁 Ending calculation state.");
             setIsCalculating(false);
         }
     };
@@ -74,7 +77,7 @@ const AppDashboard = () => {
                                 Open My Forest
                             </button>
                             <a 
-                                href="http://localhost:5001" 
+                                href="https://ecoguard-forest.onrender.com" 
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-2 px-6 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-all"
@@ -88,7 +91,7 @@ const AppDashboard = () => {
 
                 {!isAuthenticated ? (
                     <GoogleAuth onLogin={handleLogin} />
-                ) : !lifestyleCarbon ? (
+                ) : lifestyleCarbon === null ? (
                     <div className="relative">
                         {isCalculating && (
                             <div className="absolute inset-0 z-50 bg-[var(--color-brand-surface)]/80 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center">

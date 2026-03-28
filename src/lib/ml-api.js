@@ -5,6 +5,29 @@
  */
 
 const API_BASE_URL = 'https://ecoguard-mlops.onrender.com';
+const API_TIMEOUT = 15000; // 15 seconds to prevent "stuck" loading
+
+/**
+ * Helper to wrap fetch with a timeout using AbortController
+ */
+const fetchWithTimeout = async (resource, options = {}) => {
+    const { timeout = API_TIMEOUT } = options;
+    
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+        const response = await fetch(resource, {
+            ...options,
+            signal: controller.signal
+        });
+        clearTimeout(id);
+        return response;
+    } catch (error) {
+        clearTimeout(id);
+        throw error;
+    }
+};
 
 /**
  * Pipeline 1: Regression Model (Lifestyle Data)
@@ -12,7 +35,7 @@ const API_BASE_URL = 'https://ecoguard-mlops.onrender.com';
  * Body: { "features": [0.0 - 1.0, ...] } (20 normalized floats)
  */
 export const predictLifestyle = async (formData) => {
-    console.log("Pipeline 1 -> Sending normalized payload to Lifestyle ML:", formData);
+    console.log("Pipeline 1 -> Starting Lifestyle Prediction...");
 
     try {
         // Normalization Mappings (Converting categories to 0.0-1.0 range)
@@ -30,31 +53,30 @@ export const predictLifestyle = async (formData) => {
             efficiency: { "No": 0, "Sometimes": 0.5, "Yes": 1.0 }
         };
 
-        // Construct 20 normalized features list (matching model expectation in Guide)
         const features = [
-            mappings.bodyType[formData["Body Type"]?.toLowerCase()] || 0.33, // 0
-            mappings.sex[formData["Sex"]?.toLowerCase()] || 0, // 1
-            mappings.diet[formData["Diet"]?.toLowerCase()] || 1, // 2
-            mappings.shower[formData["How Often Shower"]?.toLowerCase()] || 0.33, // 3
-            mappings.heating[formData["Heating Energy Source"]?.toLowerCase()] || 0, // 4
-            mappings.transport[formData["Transport"]?.toLowerCase()] || 0.5, // 5
-            mappings.vehicle[formData["Vehicle Type"]?.toLowerCase()] || 0, // 6
-            mappings.social["sometimes"], // 7: Social Activity (Default "sometimes")
-            Math.min(1.0, (parseFloat(formData["Monthly Grocery Bill"]) || 0) / 1000), // 8: Normalized bill (up to 1000)
-            mappings.airTravel[formData["Frequency of Traveling by Air"]?.toLowerCase()] || 0, // 9
-            Math.min(1.0, (parseFloat(formData["Vehicle Monthly Distance Km"]) || 0) / 1000), // 10: Normalized distance (up to 1000)
-            mappings.wasteSize[formData["Waste Bag Size"]?.toLowerCase()] || 0.33, // 11
-            Math.min(1.0, (parseFloat(formData["Waste Bag Weekly Count"]) || 0) / 10), // 12: Normalized count (up to 10)
-            Math.min(1.0, (parseFloat(formData["How Long TV PC Daily Hour"]) || 0) / 24), // 13: Time (up to 24h)
-            Math.min(1.0, (parseFloat(formData["How Many New Clothes Monthly"]) || 0) / 10), // 14: Count (up to 10)
-            Math.min(1.0, (parseFloat(formData["How Long Internet Daily Hour"]) || 0) / 24), // 15: Time (up to 24h)
-            mappings.efficiency[formData["Energy efficiency"]] || 0.5, // 16
-            Math.min(1.0, (formData["Recycling"]?.length || 0) / 5), // 17: Recycling (up to 5 items)
-            Math.min(1.0, (formData["Cooking_With"]?.length || 0) / 5), // 18: Cooking (up to 5 items)
-            0 // 19: Placeholder
+            mappings.bodyType[formData["Body Type"]?.toLowerCase()] || 0.33,
+            mappings.sex[formData["Sex"]?.toLowerCase()] || 0,
+            mappings.diet[formData["Diet"]?.toLowerCase()] || 1,
+            mappings.shower[formData["How Often Shower"]?.toLowerCase()] || 0.33,
+            mappings.heating[formData["Heating Energy Source"]?.toLowerCase()] || 0,
+            mappings.transport[formData["Transport"]?.toLowerCase()] || 0.5,
+            mappings.vehicle[formData["Vehicle Type"]?.toLowerCase()] || 0,
+            mappings.social["sometimes"], 
+            Math.min(1.0, (parseFloat(formData["Monthly Grocery Bill"]) || 0) / 1000),
+            mappings.airTravel[formData["Frequency of Traveling by Air"]?.toLowerCase()] || 0,
+            Math.min(1.0, (parseFloat(formData["Vehicle Monthly Distance Km"]) || 0) / 1000), 
+            mappings.wasteSize[formData["Waste Bag Size"]?.toLowerCase()] || 0.33,
+            Math.min(1.0, (parseFloat(formData["Waste Bag Weekly Count"]) || 0) / 10),
+            Math.min(1.0, (parseFloat(formData["How Long TV PC Daily Hour"]) || 0) / 24),
+            Math.min(1.0, (parseFloat(formData["How Many New Clothes Monthly"]) || 0) / 10),
+            Math.min(1.0, (parseFloat(formData["How Long Internet Daily Hour"]) || 0) / 24),
+            mappings.efficiency[formData["Energy efficiency"]] || 0.5,
+            Math.min(1.0, (formData["Recycling"]?.length || 0) / 5),
+            Math.min(1.0, (formData["Cooking_With"]?.length || 0) / 5),
+            0 
         ];
 
-        const response = await fetch(`${API_BASE_URL}/api/lifestyle/predict`, {
+        const response = await fetchWithTimeout(`${API_BASE_URL}/api/lifestyle/predict`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ features })
@@ -63,6 +85,7 @@ export const predictLifestyle = async (formData) => {
         if (!response.ok) throw new Error(`API Error: ${response.status}`);
         const data = await response.json();
         
+        console.log("Pipeline 1 -> Lifestyle Prediction Success");
         return {
             lifestyle_carbon: data.monthly_carbon_kg,
             yearly_carbon: data.yearly_carbon_kg,
@@ -71,7 +94,7 @@ export const predictLifestyle = async (formData) => {
         };
 
     } catch (error) {
-        console.warn("Lifestyle Prediction API Failed, using local heuristic fallback:", error);
+        console.warn("Lifestyle Prediction API Failed or Timed Out, using local fallback:", error);
         
         let emission = 1500;
         if (formData["Transport"] === "private") {
@@ -97,26 +120,24 @@ export const predictLifestyle = async (formData) => {
 
         return {
             lifestyle_carbon: Math.max(0, Math.round(emission)),
-            error: true
+            error: true,
+            isFallback: true
         };
     }
 };
 
 /**
  * Pipeline 2: Computer Vision Model (Waste Items)
- * Endpoint: POST /api/vision/analyze
- * Body: multipart/form-data { "file": binary }
  */
 export const predictImage = async (imageFile) => {
     if (!imageFile) return [];
-    console.log("Pipeline 2 -> Sending file to Unified EcoGuard Vision Analyze API:", imageFile.name);
+    console.log("Pipeline 2 -> Starting Vision Analysis...");
 
     try {
         const formData = new FormData();
         formData.append('file', imageFile);
 
-        // Call the new unified endpoint (returns detections, weights, and carbon in one call)
-        const response = await fetch(`${API_BASE_URL}/api/vision/analyze`, {
+        const response = await fetchWithTimeout(`${API_BASE_URL}/api/vision/analyze`, {
             method: 'POST',
             body: formData
         });
@@ -124,22 +145,20 @@ export const predictImage = async (imageFile) => {
         if (!response.ok) throw new Error(`Vision Analyze API Error: ${response.status}`);
         const data = await response.json();
         
-        // The API now returns a unified structure with all metrics included
+        console.log("Pipeline 2 -> Vision Analysis Success");
         const detections = data.detections || [];
-        
-        // Map detections to ensure they match UI expecting weight_g and carbon_kg
         return detections.map(det => ({
             material: det.class_name,
             confidence: det.confidence,
             bbox: det.bbox,
             weight_g: det.weight_g,
             carbon_g: det.carbon_g,
-            carbon_kg: det.carbon_g / 1000, // Keep kg for legacy UI components
+            carbon_kg: det.carbon_g / 1000,
             size_category: det.size_category
         }));
 
     } catch (error) {
-        console.warn("Vision Analyze API Failed, using mock fallback:", error);
+        console.warn("Vision Analyze API Failed or Timed Out, using mock fallback:", error);
         return [
             { material: "plastic", confidence: 0.97, weight_g: 82.9, carbon_kg: 0.207, carbon_g: 207, size_category: "Medium" },
             { material: "cardboard", confidence: 0.89, weight_g: 150.5, carbon_kg: 0.135, carbon_g: 135, size_category: "Medium" }
@@ -152,10 +171,10 @@ export const predictImage = async (imageFile) => {
  */
 export const predictSensorData = async () => {
     try {
-        const response = await fetch('https://ecoguard-iot.onrender.com/api/sensor_data');
+        const response = await fetchWithTimeout('https://ecoguard-iot.onrender.com/api/sensor_data');
         if (response.ok) return await response.json();
     } catch (error) {
-        console.warn("IoT API unreachable, falling back to mock trajectory...");
+        console.warn("IoT API unreachable or timed out, using mock trajectory...");
     }
 
     const currentHour = new Date().getHours() || 12;
