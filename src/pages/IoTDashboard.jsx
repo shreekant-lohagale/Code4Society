@@ -5,7 +5,7 @@ import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 
 // Aligned with the current Express backend port
-const IOT_API_BASE = import.meta.env.VITE_IOT_API_URL || 'http://localhost:5005';
+const IOT_API_BASE = import.meta.env.VITE_IOT_API_URL || 'https://ecoguard-iot.onrender.com';
 const POLL_INTERVAL_MS = 10000;
 
 const IoTDashboard = () => {

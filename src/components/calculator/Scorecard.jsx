@@ -5,8 +5,8 @@ import { Activity, ArrowLeft, Leaf, ScanSearch, TreePine, TriangleAlert, Info, S
 import CountUp from 'react-countup';
 import VirtualForestModal from '../gamification/VirtualForestModal';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5005';
-const FOREST_URL = import.meta.env.VITE_GAMIFICATION_URL || 'http://localhost:5001';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://ecoguard-api.onrender.com';
+const FOREST_URL = import.meta.env.VITE_GAMIFICATION_URL || 'https://ecoguard-forest.onrender.com';
 
 const Scorecard = ({ lifestyleCarbon, imageRes, sensorData }) => {
     const [isForestOpen, setIsForestOpen] = useState(false);
