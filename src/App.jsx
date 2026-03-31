@@ -53,7 +53,7 @@ function App() {
 
         <footer className="w-full bg-[#0b1020] border-t border-white/5 py-8 text-center text-[var(--color-brand-text-secondary)] relative z-50">
           <div className="max-w-6xl mx-auto px-4 flex flex-col items-center gap-4">
-            <p>© 2026 EcoGuard. Built for SIC Hackathon.</p>
+            <p>© {new Date().getFullYear()} EcoGuard. All rights reserved.</p>
           </div>
         </footer>
       </div>
