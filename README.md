@@ -13,7 +13,7 @@
 
 **EcoGuard** bridges the gap between static, generic national averages and dynamic, real-world personal carbon footprint impacts. Powered by a **Tri-Modal ML Architecture**, it combines lifestyle analysis, computer vision waste detection, and real-time IoT sensor monitoring.
 
-[🚀 Live Demo](#local-installation) • [📚 Documentation](./REPORT.md) • [🏗️ Architecture](#-tri-modal-ml-architecture) • [📦 Models](#-machine-learning-models)
+[🚀 Live Demo](https://ecoguard-nu.vercel.app/) • [📚 Documentation](./REPORT.md) • [🏗️ Architecture](#-tri-modal-ml-architecture) • [📦 Models](#-machine-learning-models)
 
 </div>
 
@@ -36,11 +36,13 @@
 - **IoT Monitoring**: Real-time gas sensor integration for live tracking
 
 ### 🎨 Premium Interactive UI
-- Animated landing page with GSAP ScrollTrigger physics
-- 5-Step form wizard with Framer Motion transitions
-- Real-time dashboard with Recharts data visualization
-- Luxurious scroll physics using Lenis smooth scrolling
-- Dark mode with emerald accents
+- **Dynamic Virtual Forest**: Real-time gamification of carbon reduction efforts
+- **Google OAuth**: Secure, seamless cross-device authentication
+- **Animated Landing Page**: GSAP-powered physics and scroll triggers
+- **5-Step Form Wizard**: Physics-informed data collection via Framer Motion
+- **Real-time Dashboard**: Live data visualization with Recharts
+- **Smooth Navigation**: Lenis momentum scrolling for a premium feel
+- **Professional Aesthetics**: High-contrast dark mode with emerald accents
 
 ### 📊 Advanced Analytics
 - Side-by-side comparison: Generic vs. Real-World ML predictions
@@ -557,7 +559,7 @@ https://ecoguard.vercel.app
 
 ---
 
-### Deploy ML Backend (Render)
+### Deploy ML & Auth Backend (Render)
 
 Create a **Web Service** on Render connected to your GitHub repository.
 
@@ -569,13 +571,10 @@ pip install -r "EcoGuard Vision Engine/requirements.txt"
 uvicorn "EcoGuard Vision Engine.api:app" --host 0.0.0.0 --port 10000
 ```
 
-Render automatically assigns **port 10000** for web services.
-
-After deployment the ML API will be available at:
-
-```
-https://ecoguard-api.onrender.com
-```
+The application now supports **Multi-Service Architecture**:
+- **Auth/Database**: `https://ecoguard-api.onrender.com`
+- **Vision/ML Engine**: `https://ecoguard-mlops.onrender.com`
+- **Frontend**: `https://ecoguard-nu.vercel.app`
 
 You can verify the API using:
 
@@ -603,6 +602,12 @@ After deployment the IoT API will be available at:
 
 ```
 https://ecoguard-iot.onrender.com
+```
+
+### 🌳 Gamification Service
+The Virtual Forest game engine is hosted separately to ensure high performance:
+```
+Virtual Forest: https://ecoguard-forest.onrender.com
 ```
 
 ---
